@@ -5,7 +5,6 @@ Created on Sun Jan 20 22:42:05 2019
 @author: Victor
 """
 
-import graph
 import io
 
 class Instance:
@@ -49,6 +48,7 @@ class Instance:
             self.d = [[0 for i in range(self.n)] for j in range(self.n)]
             self.D = [[0. for i in range(self.n)] for j in range(self.n)]
             self.neighbors = [[] for i in range(self.n)]
+            self.predecessors = [[] for i in range(self.n)]
             #self.graph = graph.Graph(True)
             
             #for i in range(self.n):
@@ -62,4 +62,5 @@ class Instance:
                 self.d[u][v] = int(L[2])
                 self.D[u][v] = float(L[3])
                 self.neighbors[u] += [v]
+                self.predecessors[v] += [u]
                 #self.graph.addEdge(u, v, d = self.d[u][v], D = self.D[u][v])

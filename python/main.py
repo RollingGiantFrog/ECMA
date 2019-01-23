@@ -11,14 +11,14 @@ from shortestCapacitedPath import *
 
 print("Loading instance...")
 
-#instance = Instance("instances/20_USA-road-d.COL.gr")
-#instance = Instance("instances/180_USA-road-d.BAY.gr")
-#instance = Instance("instances/400_USA-road-d.BAY.gr")
-instance = Instance("instances/800_USA-road-d.NY.gr")
-#instance = Instance("instances/2400_USA-road-d.COL.gr")
-#instance = Instance("instances/2500_USA-road-d.NY.gr")
+#instance = Instance("../instances/20_USA-road-d.COL.gr")
+#instance = Instance("../instances/180_USA-road-d.BAY.gr")
+#instance = Instance("../instances/400_USA-road-d.BAY.gr")
+instance = Instance("../instances/800_USA-road-d.NY.gr")
+#instance = Instance("../instances/2400_USA-road-d.COL.gr")
+#instance = Instance("../instances/2500_USA-road-d.NY.gr")
 
-#instance = Instance("instances/1000_USA-road-d.BAY.gr")
+#instance = Instance("../instances/1000_USA-road-d.BAY.gr")
 
 print("Done.")
 
@@ -56,13 +56,13 @@ def parameterizedWorstCaseEdgeMetric(instance,u,v,penalty):
     return instance.edgeDist(u,v) * (1. + penalty*instance.D[u][v])
     
 print("Static SCP resolution")
-staticSCP = ShortestCapacitedPath(instance,instance.s,instance.t,staticNodeMetric,staticEdgeMetric,True)
+staticSCP = ShortestCapacitedPath(instance,instance.s,instance.t,staticNodeMetric,staticEdgeMetric,False,True)
 print("Static SCP done.")
 #print("\nWorst case SCP resolution")
 #worstCaseSCP = ShortestCapacitedPath(instance,worstCaseNodeMetric,worstCaseEdgeMetric)
 #print("Worst case SCP done.")
 print("\nSemi worst case SCP resolution")
-semiWorstCaseSCP = ShortestCapacitedPath(instance,instance.s,instance.t,semiWorstCaseNodeMetric,worstCaseEdgeMetric,True)
+semiWorstCaseSCP = ShortestCapacitedPath(instance,instance.s,instance.t,semiWorstCaseNodeMetric,worstCaseEdgeMetric,False,True)
 print("Semi worst case SCP done.")
 #print("\nQuadratic edges SCP resolution")
 #quadraticEdgeSCP = ShortestCapacitedPath(instance,worstCaseNodeMetric,quadraticEdgeMetric)
@@ -71,9 +71,9 @@ print("Semi worst case SCP done.")
 print("")
 
 # compte le plus court chemin en nombre d'arêtes pour aller de s à t
-leastEdgeSCP = ShortestCapacitedPath(instance,instance.s,instance.t,staticNodeMetric,leastEdgeMetric,True)
+leastEdgeSCP = ShortestCapacitedPath(instance,instance.s,instance.t,staticNodeMetric,leastEdgeMetric,False,True)
 print(leastEdgeSCP.table[instance.t].getList()[-1][1]-2)
-leastDeviationSCP = ShortestCapacitedPath(instance,instance.s,instance.t,staticNodeMetric,deviationMetric,True)
+leastDeviationSCP = ShortestCapacitedPath(instance,instance.s,instance.t,staticNodeMetric,deviationMetric,False,True)
 print(leastDeviationSCP.table[instance.t].getList()[-1][1])
     
 mDs = min([e for e in instance.D[instance.s] if e > 0])
