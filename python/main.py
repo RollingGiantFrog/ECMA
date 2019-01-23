@@ -125,22 +125,4 @@ if (semiWorstCaseSCP.lightestPath != None and semiWorstCaseSCP.lightestPath.wors
 #    print("Feasible solution (quadratic edges shortest path) = " + str(quadraticEdgeSCP.shortestPath.worstDist) + " (" + str(int(1000*(1-infBound/quadraticEdgeSCP.shortestPath.worstDist))/10.) + "%)")
 #if (quadraticEdgeSCP.lightestPath != None and quadraticEdgeSCP.lightestPath.worstWeight <= instance.S):
 #    print("Feasible solution (quadratic edges lightest path) = " + str(quadraticEdgeSCP.lightestPath.worstDist) + " (" + str(int(1000*(1-infBound/quadraticEdgeSCP.lightestPath.worstDist))/10.) + "%)")
-    
-
-#staticS = ShortestCapacitedPath(instance,instance.s,instance.t,staticNodeMetric,staticEdgeMetric,False)
-#staticT = ShortestCapacitedPath(instance,instance.t,instance.s,staticNodeMetric,staticEdgeMetric,False)
-#
-#supBound = semiWorstCaseSCP.shortestPath.worstDist
-#
-#nodeCount = 0
-#for u in range(instance.n):
-#    if len(staticS.table[u].getList()) == 0 or  len(staticT.table[u].getList()) == 0 or staticS.table[u].getList()[-1][1] + staticT.table[u].getList()[-1][1] >= supBound:
-#        print(u)
-#        nodeCount += 1
-#        
-#edgeCount = 0
-#for u in range(instance.n):
-#    for v in instance.neighbors[u]:
-#        if  (len(staticS.table[u].getList()) == 0 or  len(staticT.table[v].getList()) == 0 or staticS.table[u].getList()[-1][1] + staticT.table[v].getList()[-1][1] >= supBound) and ( len(staticS.table[v].getList()) == 0 or  len(staticT.table[u].getList()) == 0 or staticS.table[v].getList()[-1][1] + staticT.table[u].getList()[-1][1] >= supBound):
-#            print(u,v)
-#            edgeCount += 1
+  
