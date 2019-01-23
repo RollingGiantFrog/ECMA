@@ -33,6 +33,7 @@ def nodes_to_remove(instance, up_bound, staticSCP_s, static_SCP_t, s, t):
 
             if len(paretos_s) == 0 or len(paretos_t) == 0:
                 l += [i]
+                #print "not reachable"
             else:
                 for (p_s,d_s,idxs) in paretos_s: 
                     for (p_t,d_t,idxt) in paretos_t:
@@ -42,16 +43,64 @@ def nodes_to_remove(instance, up_bound, staticSCP_s, static_SCP_t, s, t):
                         continue
                     break
                 else:
+                    #print "not good enough"
                     l += [i]
             
+    return l
+
+def edges_to_remove(instance, up_bound, staticSCP_s, static_SCP_t, s, t):
+    assert(instance.d2 >= 4)
+    l = []
+    S = instance.S
+    for i in range(instance.n):
+        for j in range(instance.n):
+            if instance.adj[i][j] and i != s and j != t:
+                paretos_s = staticSCP_s.table[i].getList()
+                paretos_t = staticSCP_t.table[i].getList()
+                if len(paretos_s) == 0 or len(paretos_t) == 0:
+                    #print "not reachable"
+                    l += [(i,j)]
+                else:
+                    for (p_s,d_s,idxs) in paretos_s: 
+                        for (p_t,d_t,idxt) in paretos_t:
+
+                            if p_s + p_t + 2*instance.ph[i]  + 2 * instance.ph[j]< S and d_s + d_t + instance.d[i][j]< up_bound:
+                                break
+                        else:
+                            continue
+                        break
+                    else:
+                        #print "not good enough"
+                        l += [(i,j)]
+        
     return l
 
 staticSCP_s = ShortestCapacitedPath(instance,instance.s,instance.t,staticNodeMetric,staticEdgeMetric,False,True)
 staticSCP_t = ShortestCapacitedPath(instance,instance.t,instance.s,staticNodeMetric,staticEdgeMetric,True,True)
 l = nodes_to_remove(instance, up_bound, staticSCP_s, staticSCP_t, instance.s, instance.t)
-print(instance.s)
 
-for i in semiWorstCaseSCP.shortestPath.path :
-    assert i not in l
+edgesR = edges_to_remove(instance, up_bound, staticSCP_s, staticSCP_t, instance.s, instance.t)
 
-print(len(l))
+edgesR = set(edgesR)
+nodesR = set(l)
+"""for i in range(instance.n):
+    if i in nodesR:
+        for j in range(instance.n):
+            if instance.adj[i][j]:
+                edgesR.add((i,j))
+            if instance.adj[j][i]:
+                edgesR.add((j,i))"""
+d = len(list(edgesR))*1.
+
+
+
+
+
+c = 0.
+for i in range(instance.n):
+    for j in range(instance.n):
+        c += instance.adj[i][j]
+print d/c
+print c
+
+print c-d
