@@ -2,7 +2,7 @@ from instance import *
 from path import *     
 from shortestCapacitedPath import *
 
-instance = Instance("../instances/2500_USA-road-d.NY.gr")
+instance = Instance("../instances/1000_USA-road-d.BAY.gr")
 
 def staticNodeMetric(instance,u):
     return instance.nodeWeight(u)
@@ -37,7 +37,7 @@ def nodes_to_remove(instance, up_bound, staticSCP_s, static_SCP_t, s, t):
             else:
                 for (p_s,d_s,idxs) in paretos_s: 
                     for (p_t,d_t,idxt) in paretos_t:
-                        if p_s + p_t - instance.p[i] + 2*instance.ph[i] < S and d_s + d_t < up_bound:
+                        if p_s + p_t - instance.p[i] + min(2,instance.d2)*instance.ph[i] < S and d_s + d_t < up_bound:
                             break
                     else:
                         continue
@@ -49,7 +49,6 @@ def nodes_to_remove(instance, up_bound, staticSCP_s, static_SCP_t, s, t):
     return l
 
 def edges_to_remove(instance, up_bound, staticSCP_s, static_SCP_t, s, t):
-    assert(instance.d2 >= 4)
     l = []
     S = instance.S
     for i in range(instance.n):
@@ -63,8 +62,11 @@ def edges_to_remove(instance, up_bound, staticSCP_s, static_SCP_t, s, t):
                 else:
                     for (p_s,d_s,idxs) in paretos_s: 
                         for (p_t,d_t,idxt) in paretos_t:
-
-                            if p_s + p_t + 2*instance.ph[i]  + 2 * instance.ph[j]< S and d_s + d_t + instance.d[i][j]< up_bound:
+                            mini_ph = min(instance.ph[i], instance.ph[j])
+                            maxi_ph = max(instance.ph[i], instance.ph[j])
+                            c_max = min(2, instance.d2)
+                            c_min = max(min(2, instance.d2-c_max),0)
+                            if p_s + p_t + c_max*maxi_ph  + c_min*mini_ph < S and d_s + d_t + instance.d[i][j]*(1+instance.D[i][j])< up_bound:
                                 break
                         else:
                             continue
@@ -83,13 +85,13 @@ edgesR = edges_to_remove(instance, up_bound, staticSCP_s, staticSCP_t, instance.
 
 edgesR = set(edgesR)
 nodesR = set(l)
-"""for i in range(instance.n):
+for i in range(instance.n):
     if i in nodesR:
         for j in range(instance.n):
             if instance.adj[i][j]:
                 edgesR.add((i,j))
             if instance.adj[j][i]:
-                edgesR.add((j,i))"""
+                edgesR.add((j,i))
 d = len(list(edgesR))*1.
 
 
@@ -104,3 +106,4 @@ print d/c
 print c
 
 print c-d
+
