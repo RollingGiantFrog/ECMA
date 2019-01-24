@@ -8,8 +8,8 @@ Created on Tue Jan 22 10:57:09 2019
 from path import *
 from sortedList import *
 
-def sconnect(instance, v, reverse=False):
-    N = instance.n
+def sconnect(neighbors, v):
+    N = len(neighbors)
     next = 0 # Next index.
     index = [None] * N
     lowlink = [None] * N
@@ -19,84 +19,44 @@ def sconnect(instance, v, reverse=False):
     groups = [] # SCCs: list of vertices.
     groupid = {} # Map from vertex to SCC ID.
     
-    if not reverse:
-        work = [(v, 0)] # NEW: Recursion stack.
-        while work:
-            v, i = work[-1] # i is next successor to process.
-            del work[-1]
-            if i == 0: # When first visiting a vertex:
-                index[v] = next
-                lowlink[v] = next
-                next += 1
-                stack.append(v)
-                onstack[v] = True
-            recurse = False
-            for j in range(i, len(instance.neighbors[v])):
-                w = instance.neighbors[v][j]
-                if index[w] == None:
-                    # CHANGED: Add w to recursion stack.
-                    work.append((v, j+1))
-                    work.append((w, 0))
-                    recurse = True
-                    break
-                elif onstack[w]:
-                    lowlink[v] = min(lowlink[v], index[w])
-            if recurse: continue # NEW
-            if index[v] == lowlink[v]:
-                com = []
-                while True:
-                    w = stack[-1]
-                    del stack[-1]
-                    onstack[w] = False
-                    com.append(w)
-                    groupid[w] = nextgroup
-                    if w == v: break
-                groups.append(com)
-                nextgroup += 1
-            if work: # NEW: v was recursively visited.
-                w = v
-                v, _ = work[-1]
-                lowlink[v] = min(lowlink[v], lowlink[w])
-                
-    else:
-        work = [(v, 0)] # NEW: Recursion stack.
-        while work:
-            v, i = work[-1] # i is next successor to process.
-            del work[-1]
-            if i == 0: # When first visiting a vertex:
-                index[v] = next
-                lowlink[v] = next
-                next += 1
-                stack.append(v)
-                onstack[v] = True
-            recurse = False
-            for j in range(i, len(instance.predecessors[v])):
-                w = instance.predecessors[v][j]
-                if index[w] == None:
-                    # CHANGED: Add w to recursion stack.
-                    work.append((v, j+1))
-                    work.append((w, 0))
-                    recurse = True
-                    break
-                elif onstack[w]:
-                    lowlink[v] = min(lowlink[v], index[w])
-            if recurse: continue # NEW
-            if index[v] == lowlink[v]:
-                com = []
-                while True:
-                    w = stack[-1]
-                    del stack[-1]
-                    onstack[w] = False
-                    com.append(w)
-                    groupid[w] = nextgroup
-                    if w == v: break
-                groups.append(com)
-                nextgroup += 1
-            if work: # NEW: v was recursively visited.
-                w = v
-                v, _ = work[-1]
-                lowlink[v] = min(lowlink[v], lowlink[w])
-                
+    work = [(v, 0)] # NEW: Recursion stack.
+    while work:
+        v, i = work[-1] # i is next successor to process.
+        del work[-1]
+        if i == 0: # When first visiting a vertex:
+            index[v] = next
+            lowlink[v] = next
+            next += 1
+            stack.append(v)
+            onstack[v] = True
+        recurse = False
+        for j in range(i, len(neighbors[v])):
+            w = neighbors[v][j]
+            if index[w] == None:
+                # CHANGED: Add w to recursion stack.
+                work.append((v, j+1))
+                work.append((w, 0))
+                recurse = True
+                break
+            elif onstack[w]:
+                lowlink[v] = min(lowlink[v], index[w])
+        if recurse: continue # NEW
+        if index[v] == lowlink[v]:
+            com = []
+            while True:
+                w = stack[-1]
+                del stack[-1]
+                onstack[w] = False
+                com.append(w)
+                groupid[w] = nextgroup
+                if w == v: break
+            groups.append(com)
+            nextgroup += 1
+        if work: # NEW: v was recursively visited.
+            w = v
+            v, _ = work[-1]
+            lowlink[v] = min(lowlink[v], lowlink[w])
+            
     return groups
 
 class ShortestCapacitedPath:
@@ -114,11 +74,19 @@ class ShortestCapacitedPath:
             if scc:
                 order = []
                 done = [False for i in range(instance.n)]
-                sccs = sconnect(instance,instance.s)
+                inOrder = [False for i in range(instance.n)]
+                sccs = sconnect(instance.neighbors,instance.s)
                 for i in range(len(sccs)-1,-1,-1):
                     for j in range(len(sccs[i])-1,-1,-1):
                         order += [sccs[i][j]]
-                        
+                   
+                for u in order:
+                    inOrder[u] = True
+                
+                for u in range(instance.n):
+                    if not inOrder[u]:
+                        order += [u]
+                
                 iter = 0
                 while (instance.n > sum(done)):
                     for u in order:
@@ -156,11 +124,19 @@ class ShortestCapacitedPath:
             if scc:
                 order = []
                 done = [False for i in range(instance.n)]
-                sccs = sconnect(instance,instance.s)
+                inOrder = [False for i in range(instance.n)]
+                sccs = sconnect(instance.predecessors,instance.s)
                 for i in range(len(sccs)-1,-1,-1):
                     for j in range(len(sccs[i])-1,-1,-1):
                         order += [sccs[i][j]]
-                        
+                                        
+                for u in order:
+                    inOrder[u] = True
+                
+                for u in range(instance.n):
+                    if not inOrder[u]:
+                        order += [u]
+                
                 iter = 0
                 while (instance.n > sum(done)):
                     for u in order:

@@ -2,7 +2,7 @@ from instance import *
 from path import *     
 from shortestCapacitedPath import *
 
-instance = Instance("../instances/1000_USA-road-d.BAY.gr")
+instance = Instance("../instances/2500_USA-road-d.COL.gr")
 
 def staticNodeMetric(instance,u):
     return instance.nodeWeight(u)
@@ -15,17 +15,13 @@ def semiWorstCaseNodeMetric(instance,u):
 
 def worstCaseEdgeMetric(instance,u,v):
     return instance.edgeDist(u,v) * (1. + instance.D[u][v])
-    
-
-semiWorstCaseSCP = ShortestCapacitedPath(instance,instance.s,instance.t,semiWorstCaseNodeMetric,worstCaseEdgeMetric,False,True)
-
-up_bound = semiWorstCaseSCP.shortestPath.worstDist
-
- 
+     
 
 def nodes_to_remove(instance, up_bound, staticSCP_s, static_SCP_t, s, t):
     l = []
     S = instance.S
+    notReacheable = 0
+    notGoodEnough = 0
     for i in range(instance.n):
         if i != s and i != t:
             paretos_s = staticSCP_s.table[i].getList()
@@ -34,6 +30,7 @@ def nodes_to_remove(instance, up_bound, staticSCP_s, static_SCP_t, s, t):
             if len(paretos_s) == 0 or len(paretos_t) == 0:
                 l += [i]
                 #print "not reachable"
+                notReacheable += 1
             else:
                 for (p_s,d_s,idxs) in paretos_s: 
                     for (p_t,d_t,idxt) in paretos_t:
@@ -44,8 +41,9 @@ def nodes_to_remove(instance, up_bound, staticSCP_s, static_SCP_t, s, t):
                     break
                 else:
                     #print "not good enough"
+                    notGoodEnough += 1
                     l += [i]
-            
+    print(notReacheable, notGoodEnough)
     return l
 
 def edges_to_remove(instance, up_bound, staticSCP_s, static_SCP_t, s, t):
@@ -55,7 +53,7 @@ def edges_to_remove(instance, up_bound, staticSCP_s, static_SCP_t, s, t):
         for j in range(instance.n):
             if instance.adj[i][j] and i != s and j != t:
                 paretos_s = staticSCP_s.table[i].getList()
-                paretos_t = staticSCP_t.table[i].getList()
+                paretos_t = staticSCP_t.table[j].getList()
                 if len(paretos_s) == 0 or len(paretos_t) == 0:
                     #print "not reachable"
                     l += [(i,j)]
@@ -65,8 +63,8 @@ def edges_to_remove(instance, up_bound, staticSCP_s, static_SCP_t, s, t):
                             mini_ph = min(instance.ph[i], instance.ph[j])
                             maxi_ph = max(instance.ph[i], instance.ph[j])
                             c_max = min(2, instance.d2)
-                            c_min = max(min(2, instance.d2-c_max),0)
-                            if p_s + p_t + c_max*maxi_ph  + c_min*mini_ph < S and d_s + d_t + instance.d[i][j]*(1+instance.D[i][j])< up_bound:
+                            c_min = min(2, instance.d2-c_max)
+                            if p_s + p_t + c_max*maxi_ph + c_min*mini_ph < S and d_s + d_t + instance.d[i][j]*(1+instance.D[i][j])< up_bound:
                                 break
                         else:
                             continue
@@ -77,33 +75,54 @@ def edges_to_remove(instance, up_bound, staticSCP_s, static_SCP_t, s, t):
         
     return l
 
-staticSCP_s = ShortestCapacitedPath(instance,instance.s,instance.t,staticNodeMetric,staticEdgeMetric,False,True)
-staticSCP_t = ShortestCapacitedPath(instance,instance.t,instance.s,staticNodeMetric,staticEdgeMetric,True,True)
-l = nodes_to_remove(instance, up_bound, staticSCP_s, staticSCP_t, instance.s, instance.t)
+modified = True
 
-edgesR = edges_to_remove(instance, up_bound, staticSCP_s, staticSCP_t, instance.s, instance.t)
+semiWorstCaseSCP = ShortestCapacitedPath(instance,instance.s,instance.t,semiWorstCaseNodeMetric,worstCaseEdgeMetric,False,True)
 
-edgesR = set(edgesR)
-nodesR = set(l)
-for i in range(instance.n):
-    if i in nodesR:
-        for j in range(instance.n):
-            if instance.adj[i][j]:
-                edgesR.add((i,j))
-            if instance.adj[j][i]:
-                edgesR.add((j,i))
-d = len(list(edgesR))*1.
+supBound = semiWorstCaseSCP.shortestPath.worstDist
 
+while modified:
 
-
-
-
-c = 0.
-for i in range(instance.n):
-    for j in range(instance.n):
-        c += instance.adj[i][j]
-print d/c
-print c
-
-print c-d
-
+    staticSCP_s = ShortestCapacitedPath(instance,instance.s,instance.t,staticNodeMetric,staticEdgeMetric,False,True)
+    staticSCP_t = ShortestCapacitedPath(instance,instance.t,instance.s,staticNodeMetric,staticEdgeMetric,True,True)
+    l = nodes_to_remove(instance, supBound, staticSCP_s, staticSCP_t, instance.s, instance.t)
+    
+    edgesR = edges_to_remove(instance, supBound, staticSCP_s, staticSCP_t, instance.s, instance.t)
+    
+    edgesR = set(edgesR)
+    nodesR = set(l)
+    for i in range(instance.n):
+        if i in nodesR:
+            for j in range(instance.n):
+                if instance.adj[i][j]:
+                    edgesR.add((i,j))
+                if instance.adj[j][i]:
+                    edgesR.add((j,i))
+    d = len(list(edgesR))*1.
+    
+    c = 0.
+    for i in range(instance.n):
+        c += len(instance.neighbors[i])
+    
+#    path = semiWorstCaseSCP.shortestPath.path    
+#    for i in range(len(path)-1):
+#        assert(not path[i] in nodesR)
+#        assert(not (path[i],path[i+1]) in edgesR)
+#    assert(not path[-1] in nodesR)
+#    oldNodesTable = [-1 for i in range(instance.n)]
+    
+    modified = len(nodesR) + len(edgesR) > 0
+    instance = instance.restrict(nodesR,edgesR)
+    
+#    for i in range(len(instance.initialNodes)):
+#        print(i)
+#        print(instance.initialNodes[i])
+#        oldNodesTable[instance.initialNodes[i]] = i
+#    
+#    for i in range(len(path)-1):
+#        assert(oldNodesTable[path[i]] >= 0)
+#        assert(instance.hasEdge(oldNodesTable[path[i]],oldNodesTable[path[i+1]]))
+#    
+    print("Remaining nodes : " + str(instance.n))
+    print("Remaining edges : " + str(c-d) + " (" + str(int(100*d/c)) + "% removed edges)")
+    print("")

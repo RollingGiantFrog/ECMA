@@ -12,13 +12,14 @@ from shortestCapacitedPath import *
 print("Loading instance...")
 
 #instance = Instance("../instances/20_USA-road-d.COL.gr")
+#instance = Instance("../instances/100_USA-road-d.BAY.gr")
 #instance = Instance("../instances/180_USA-road-d.BAY.gr")
 #instance = Instance("../instances/400_USA-road-d.BAY.gr")
-instance = Instance("../instances/800_USA-road-d.NY.gr")
+#instance = Instance("../instances/800_USA-road-d.NY.gr")
 #instance = Instance("../instances/2400_USA-road-d.COL.gr")
-#instance = Instance("../instances/2500_USA-road-d.NY.gr")
+#instance = Instance("../instances/2500_USA-road-d.BAY.gr")
 
-#instance = Instance("../instances/1000_USA-road-d.BAY.gr")
+instance = Instance("../instances/1000_USA-road-d.BAY.gr")
 
 print("Done.")
 
@@ -126,3 +127,30 @@ if (semiWorstCaseSCP.lightestPath != None and semiWorstCaseSCP.lightestPath.wors
 #if (quadraticEdgeSCP.lightestPath != None and quadraticEdgeSCP.lightestPath.worstWeight <= instance.S):
 #    print("Feasible solution (quadratic edges lightest path) = " + str(quadraticEdgeSCP.lightestPath.worstDist) + " (" + str(int(1000*(1-infBound/quadraticEdgeSCP.lightestPath.worstDist))/10.) + "%)")
   
+#if (quadraticEdgeSCP.shortestPath != None and quadraticEdgeSCP.shortestPath.worstWeight <= instance.S):
+#    print("Feasible solution (quadratic edges shortest path) = " + str(quadraticEdgeSCP.shortestPath.worstDist) + " (" + str(int(1000*(1-infBound/quadraticEdgeSCP.shortestPath.worstDist))/10.) + "%)")
+#if (quadraticEdgeSCP.lightestPath != None and quadraticEdgeSCP.lightestPath.worstWeight <= instance.S):
+#    print("Feasible solution (quadratic edges lightest path) = " + str(quadraticEdgeSCP.lightestPath.worstDist) + " (" + str(int(1000*(1-infBound/quadraticEdgeSCP.lightestPath.worstDist))/10.) + "%)")
+    
+#
+#staticS = ShortestCapacitedPath(instance,instance.s,instance.t,staticNodeMetric,staticEdgeMetric,False,False)
+#staticT = ShortestCapacitedPath(instance,instance.t,instance.s,staticNodeMetric,staticEdgeMetric,True,False)
+#
+#supBound = semiWorstCaseSCP.shortestPath.worstDist
+#
+#nodeCount = 0
+#removedNodes = []
+#for u in range(instance.n):
+#    if staticS.table[u].empty() or staticT.table[u].empty() or staticS.table[u][0][0] + staticT.table[u][0][0] - instance.nodeWeight(u) > instance.S or staticS.table[u][-1][1] + staticT.table[u][-1][1] >= supBound:
+#        print(u)
+#        nodeCount += 1
+#        removedNodes += [u]
+#
+#
+#        
+#edgeCount = 0
+#for u in range(instance.n):
+#    for v in instance.neighbors[u]:
+#        if (staticS.table[u].empty() or  staticT.table[v].empty() or staticS.table[u][-1][1] + staticT.table[v][-1][1] >= supBound) and (staticS.table[v].empty() or staticT.table[u].empty() or staticS.table[v].getList()[-1][1] + staticT.table[u][-1][1] >= supBound):
+#            print(u,v)
+#            edgeCount += 1
