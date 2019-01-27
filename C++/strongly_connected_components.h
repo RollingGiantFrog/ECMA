@@ -11,9 +11,8 @@ struct SCCUtils {
     std::vector<bool> onstack;
     std::vector<int> index;
     std::vector<int> lowlink;
-    std::vector<int> scc;
     std::stack<Node> stack;
-    int next, nextgroup;
+    int next;
 
     std::vector< std::vector<Node> > groups;
 };

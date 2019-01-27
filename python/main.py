@@ -19,7 +19,7 @@ print("Loading instance...")
 #instance = Instance("../instances/2400_USA-road-d.COL.gr")
 #instance = Instance("../instances/2500_USA-road-d.BAY.gr")
 
-instance = Instance("../instances/1000_USA-road-d.BAY.gr")
+instance = Instance("../instances/2500_USA-road-d.BAY.gr")
 
 print("Done.")
 

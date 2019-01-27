@@ -10,18 +10,6 @@
 #include "path.h"
 #include "sorted_list.h"
 
-/*class NodeMetric {
-public:
-    NodeMetric() {};
-    virtual double operator() (const Instance& instance, Node node) = 0;
-};
-
-class EdgeMetric {
-public:
-    EdgeMetric() {};
-    virtual double operator() (const Instance& instance, Node node1, Node node2) = 0;
-};*/
-
 template<typename NodeMetric, typename EdgeMetric>
 class ShortestCapacitedPath {
 public:
@@ -37,9 +25,6 @@ public:
 
     bool reverseMode;
 
-    Path shortestPath;
-    Path lightestPath;
-
     ShortestCapacitedPath(const Instance& instance, Node initNode, Node endNode, const NodeMetric& nodeMetric, const EdgeMetric& edgeMetric, bool reverseMode = false) :
     instance(instance),
     initNode(initNode),
@@ -47,9 +32,7 @@ public:
     nodeMetric(nodeMetric),
     edgeMetric(edgeMetric),
     iter(0),
-    reverseMode(reverseMode),
-    shortestPath(instance),
-    lightestPath(instance) {
+    reverseMode(reverseMode) {
 
         for (int i = 0; i < instance.n; ++i) table.push_back(SortedList());
 
@@ -77,22 +60,21 @@ public:
                     if (!done[u]) {
                         done[u] = true;
                         countDone = countDone + 1;
-                        std::vector<Pathway> ways = table[u].getList();
-                        for (unsigned int j = 0; j < ways.size(); ++j) {
-                            Pathway way = ways[j];
+                        for (std::list<Pathway>::iterator it = table[u].ways.begin(); it != table[u].ways.end(); ++it) {
+                            Pathway way = (*it);
                             for (unsigned int k = 0; k < instance.neighbors[u].size(); ++k) {
                                 Node v = instance.neighbors[u][k];
                                 int weight = way.weight + nodeMetric(v);
                                 if (weight <= instance.S) {
                                     if (table[v].addValue(weight,way.value + edgeMetric(u,v),u)) {
                                         if (done[v]) {
-                                            done[v] = true;
+                                            done[v] = false;
                                             countDone = countDone - 1;
                                         }
                                     }
                                 }
                                 iter = iter + 1;
-                                if ((iter % 200000) == 0) std::cout << "Nodes to process : " << instance.n - countDone << std::endl;
+                                //if ((iter % 200000) == 0) std::cout << "Nodes to process : " << instance.n - countDone << std::endl;
                             }
                         }
                     }
@@ -123,16 +105,15 @@ public:
                     if (!done[u]) {
                         done[u] = true;
                         countDone = countDone + 1;
-                        std::vector<Pathway> ways = table[u].getList();
-                        for (unsigned int j = 0; j < ways.size(); ++j) {
-                            Pathway way = ways[j];
+                        for (std::list<Pathway>::iterator it = table[u].ways.begin(); it != table[u].ways.end(); ++it) {
+                            Pathway way = (*it);
                             for (unsigned int k = 0; k < instance.predecessors[u].size(); ++k) {
                                 Node v = instance.predecessors[u][k];
                                 int weight = way.weight + nodeMetric(v);
                                 if (weight <= instance.S) {
                                     if (table[v].addValue(weight,way.value + edgeMetric(v,u),u)) {
                                         if (done[v]) {
-                                            done[v] = true;
+                                            done[v] = false;
                                             countDone = countDone - 1;
                                         }
                                     }
@@ -153,7 +134,7 @@ public:
     }
 
     Path extractPathNodes(Node s, Node t, unsigned int pathIdx) const {
-        assert(table[t].empty());
+        assert(!table[t].empty());
 
         std::vector<Node> nodes;
         nodes.push_back(t);

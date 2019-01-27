@@ -87,7 +87,7 @@ class ShortestCapacitedPath:
                     if not inOrder[u]:
                         order += [u]
                 
-                iter = 0
+                self.iter = 0
                 while (instance.n > sum(done)):
                     for u in order:
                         if not done[u]:
@@ -99,9 +99,9 @@ class ShortestCapacitedPath:
                                     if weight <= instance.S:
                                         if self.table[v].addValue(weight,x[1] + self.edgeMetric(self.instance,u,v),u):
                                             done[v] = False
-                                        iter += 1
-                                        if (iter % 200000) == 0:
-                                            print("Nodes to process : " + str(instance.n-sum(done)))
+                                    self.iter += 1
+                                    if (self.iter % 200000) == 0:
+                                        print("Nodes to process : " + str(instance.n-sum(done)))
     
             else:
                 queue = [initNode]
@@ -137,7 +137,7 @@ class ShortestCapacitedPath:
                     if not inOrder[u]:
                         order += [u]
                 
-                iter = 0
+                self.iter = 0
                 while (instance.n > sum(done)):
                     for u in order:
                         if not done[u]:
@@ -149,9 +149,9 @@ class ShortestCapacitedPath:
                                     if weight <= instance.S:
                                         if self.table[v].addValue(weight,x[1] + self.edgeMetric(self.instance,v,u),u):
                                             done[v] = False
-                                        iter += 1
-                                        if (iter % 200000) == 0:
-                                            print("Nodes to process : " + str(instance.n-sum(done)))
+                                    self.iter += 1
+                                    if (self.iter % 200000) == 0:
+                                        print("Nodes to process : " + str(instance.n-sum(done)))
     
             else:
                 queue = [initNode]
