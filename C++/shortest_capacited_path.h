@@ -6,9 +6,38 @@
 #include <vector>
 #include <assert.h>
 
+#include "strongly_connected_components.h"
 #include "instance.h"
 #include "path.h"
 #include "sorted_list.h"
+
+class StaticNodeMetric {
+public:
+    const Instance& instance;
+    StaticNodeMetric(const Instance& instance) : instance(instance) {};
+    int operator() (Node u) const { return instance.p[u]; };
+};
+
+class StaticEdgeMetric {
+public:
+    const Instance& instance;
+    StaticEdgeMetric(const Instance& instance) : instance(instance) {};
+    int operator() (Node u, Node v) const { return instance.d[u][v]; };
+};
+
+class SemiWorstCaseNodeMetric {
+public:
+    const Instance& instance;
+    SemiWorstCaseNodeMetric(const Instance& instance) : instance(instance) {};
+    int operator() (Node u) const { return instance.p[u] + instance.ph[u]; };
+};
+
+class SemiWorstCaseEdgeMetric {
+public:
+    const Instance& instance;
+    SemiWorstCaseEdgeMetric(const Instance& instance) : instance(instance) {};
+    double operator() (Node u, Node v) const { return instance.d[u][v]*(1. + instance.D[u][v]); };
+};
 
 template<typename NodeMetric, typename EdgeMetric>
 class ShortestCapacitedPath {
@@ -74,7 +103,7 @@ public:
                                     }
                                 }
                                 iter = iter + 1;
-                                //if ((iter % 200000) == 0) std::cout << "Nodes to process : " << instance.n - countDone << std::endl;
+                                //if ((iter % 1000000) == 0) std::cout << "Nodes to process : " << instance.n - countDone << std::endl;
                             }
                         }
                     }
@@ -119,17 +148,12 @@ public:
                                     }
                                 }
                                 iter = iter + 1;
-                                if ((iter % 200000) == 0) std::cout << "Nodes to process : " << instance.n - countDone << std::endl;
+                                //if ((iter % 1000000) == 0) std::cout << "Nodes to process : " << instance.n - countDone << std::endl;
                             }
                         }
                     }
                 }
             }
-        }
-
-        if (!table[endNode].empty()) {
-            //shortestPath = extractPathNodes(initNode,endNode,table[endNode].size()-1);
-            //lightestPath = extractPathNodes(initNode,endNode,0);
         }
     }
 
@@ -140,8 +164,8 @@ public:
         nodes.push_back(t);
 
         std::vector<Pathway> ways = (table[t].getList());
-        int weight = ways[pathIdx].weight - nodeMetric(t);
-        Node u = ways[pathIdx].pred;
+        int weight = ways[pathIdx % table[t].size()].weight - nodeMetric(t);
+        Node u = ways[pathIdx % table[t].size()].pred;
 
         while (u != s) {
             nodes.push_back(u);

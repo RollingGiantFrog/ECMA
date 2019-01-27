@@ -2,7 +2,7 @@ from instance import *
 from path import *     
 from shortestCapacitedPath import *
 
-instance = Instance("../instances/2500_USA-road-d.COL.gr")
+instance = Instance("../instances/2500_USA-road-d.BAY.gr")
 
 def staticNodeMetric(instance,u):
     return instance.nodeWeight(u)
@@ -104,25 +104,9 @@ while modified:
     for i in range(instance.n):
         c += len(instance.neighbors[i])
     
-#    path = semiWorstCaseSCP.shortestPath.path    
-#    for i in range(len(path)-1):
-#        assert(not path[i] in nodesR)
-#        assert(not (path[i],path[i+1]) in edgesR)
-#    assert(not path[-1] in nodesR)
-#    oldNodesTable = [-1 for i in range(instance.n)]
-    
     modified = len(nodesR) + len(edgesR) > 0
     instance = instance.restrict(nodesR,edgesR)
     
-#    for i in range(len(instance.initialNodes)):
-#        print(i)
-#        print(instance.initialNodes[i])
-#        oldNodesTable[instance.initialNodes[i]] = i
-#    
-#    for i in range(len(path)-1):
-#        assert(oldNodesTable[path[i]] >= 0)
-#        assert(instance.hasEdge(oldNodesTable[path[i]],oldNodesTable[path[i+1]]))
-#    
     print("Remaining nodes : " + str(instance.n))
     print("Remaining edges : " + str(c-d) + " (" + str(int(100*d/c)) + "% removed edges)")
     print("")

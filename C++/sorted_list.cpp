@@ -3,7 +3,7 @@
 #include <list>
 #include <vector>
 
-bool SortedList::addValue(int weight, int value, Node pred) {
+bool SortedList::addValue(int weight, float value, Node pred) {
     std::list<Pathway>::reverse_iterator it_ = ways.rend();
     std::list<Pathway>::reverse_iterator it = ways.rbegin();
 

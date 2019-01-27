@@ -8,7 +8,7 @@
 
 struct Pathway {
     int weight;
-    int value;
+    float value;
     Node pred;
 };
 
@@ -17,7 +17,7 @@ public:
     std::list<Pathway> ways;
 
     SortedList() {};
-    bool addValue(int weight, int value, Node pred);
+    bool addValue(int weight, float value, Node pred);
     bool empty() const;
     unsigned int size() const;
     Pathway operator[] (unsigned int i) const;
