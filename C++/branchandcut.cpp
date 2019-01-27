@@ -5,6 +5,7 @@
 
 #include "instance.h"
 #include "path.h"
+#include "preprocess_nodes.h"
                    
 using namespace std;
 
@@ -85,14 +86,19 @@ int main(){
 	
 	IloModel model(env);
 
-	Instance instance("instances/1000_USA-road-d.BAY.gr",0);
-
+	if (argc < 2) return -1;
+	Instance instance(argv[1],0);
+	if (argc >= 3 && argv[2][0] == 'p')
+		instance = preprocessInstance(instance);
+	cout << "After preprocessing : " << instance.n << endl;
+	
 	try {
 		IloArray<IloBoolVarArray> x(env, instance.n);
 		for (int i = 0; i < instance.n; ++i) {
 			x[i] = IloBoolVarArray(env, instance.n);
 			for (int j = 0; j < instance.n; j++) {
-				x[i][j] = IloBoolVar(env);
+				if (instance.adj[i][j])
+					x[i][j] = IloBoolVar(env);
 			}
 		}
 
