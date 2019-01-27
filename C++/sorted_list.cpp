@@ -1,8 +1,9 @@
 #include "sorted_list.h"
 
 #include <list>
+#include <vector>
 
-bool SortedList::addValue(int weight, int value, int pred) {
+bool SortedList::addValue(int weight, int value, Node pred) {
     std::list<Pathway>::reverse_iterator it_ = ways.rend();
     std::list<Pathway>::reverse_iterator it = ways.rbegin();
 
@@ -38,4 +39,18 @@ bool SortedList::addValue(int weight, int value, int pred) {
         }
     }
     return true;
+}
+
+bool SortedList::empty() const {
+    return ways.empty();
+}
+
+unsigned int SortedList::size() const {
+    return ways.size();
+}
+
+std::vector<Pathway> SortedList::getList() const {
+    std::vector<Pathway> v;
+    v.insert(v.end(),ways.begin(),ways.end());
+    return v;
 }

@@ -7,7 +7,7 @@
 using namespace std;
 
 struct PathNode {
-	int node;
+	Node node;
 	int weight;
 	float devWeight;
 	float dev;
@@ -16,8 +16,8 @@ struct PathNode {
 bool nodeCompare(PathNode node1, PathNode node2);
 
 struct PathEdge {
-	int node1;
-	int node2;
+	Node node1;
+	Node node2;
 	int dist;
 	float dev;
 };
@@ -25,22 +25,24 @@ struct PathEdge {
 bool edgeCompare(PathEdge edge1, PathEdge edge2);
 
 class Path {
-public:	
-	Path(const Instance& instance, vector<int> path);
-	
+public:
+    Path(const Instance& instance) : instance(instance) {};
+	Path(const Instance& instance, vector<Node> path);
+	void compute(vector<Node> path);
+
 	const Instance& instance;
-	vector<int> path;
-	
+	vector<Node> path;
+
 	bool isValid;
-	
+
 	int weight;
 	float worstWeight;
-	
+
 	int dist;
 	float worstDist;
-	
+
 	int length;
-	
+
 	vector<PathNode> nodes;
 	vector<PathEdge> edges;
 };

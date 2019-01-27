@@ -4,18 +4,20 @@
 #include <vector>
 #include <stack>
 
+#include "node.h"
+
 struct SCCUtils {
-    const std::vector< std::vector<int> >& adj;
+    const std::vector< std::vector<Node> >& adj;
     std::vector<bool> onstack;
     std::vector<int> index;
     std::vector<int> lowlink;
     std::vector<int> scc;
-    std::stack<int> stack;
+    std::stack<Node> stack;
     int next, nextgroup;
 
-    std::vector< std::vector<int> > groups;
+    std::vector< std::vector<Node> > groups;
 };
 
-std::vector< std::vector<int> > sconnect(const std::vector< std::vector<int> >& neighbors, int node);
+std::vector< std::vector<Node> > sconnect(const std::vector< std::vector<Node> >& neighbors, Node node);
 
 #endif // STRONGLY_CONNECTED_COMPONENTS_H_INCLUDED

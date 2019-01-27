@@ -1,5 +1,8 @@
 #include "shortest_capacited_path.h"
 
+#include <assert.h>
+#include <algorithm>
+#include <vector>
 
 
 /*class ShortestCapacitedPath:
@@ -81,22 +84,3 @@
 
         self.shortestPath = self.extractPathNodes(initNode,endNode,-1)
         self.lightestPath = self.extractPathNodes(initNode,endNode,0)
-
-    def extractPathNodes(self,s,t,pathIdx):
-        nodes = [t]
-        if self.table[t].getList() == []:
-            return None
-        weight = self.table[t].getList()[pathIdx][0] - self.nodeMetric(self.instance,t)
-        u = self.table[t].getList()[pathIdx][2]
-
-        while u != s:
-            nodes = [u] + nodes
-            list = self.table[u].getList()
-            for x in list:
-                if x[0] == weight:
-                    weight -= self.nodeMetric(self.instance,u)
-                    u = x[2]
-
-        nodes = [s] + nodes
-        return Path(self.instance, nodes)
-*/

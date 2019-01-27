@@ -75,7 +75,7 @@ class ShortestCapacitedPath:
                 order = []
                 done = [False for i in range(instance.n)]
                 inOrder = [False for i in range(instance.n)]
-                sccs = sconnect(instance.neighbors,instance.s)
+                sccs = sconnect(instance.neighbors,initNode)
                 for i in range(len(sccs)-1,-1,-1):
                     for j in range(len(sccs[i])-1,-1,-1):
                         order += [sccs[i][j]]
@@ -125,7 +125,7 @@ class ShortestCapacitedPath:
                 order = []
                 done = [False for i in range(instance.n)]
                 inOrder = [False for i in range(instance.n)]
-                sccs = sconnect(instance.predecessors,instance.s)
+                sccs = sconnect(instance.predecessors,initNode)
                 for i in range(len(sccs)-1,-1,-1):
                     for j in range(len(sccs[i])-1,-1,-1):
                         order += [sccs[i][j]]

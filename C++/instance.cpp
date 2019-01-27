@@ -1,4 +1,5 @@
 #include "instance.h"
+#include "node.h"
 #include <cstdlib>
 #include <cmath>
 #include <iostream>
@@ -18,24 +19,24 @@ Instance::Instance(char filename[], int verbosity) {
   if(file) {
     file >> readChar >> readChar >> n;
     if (verbosity >= 1) cout << "n = " << n << endl;
-    
+
     file >> readChar >> readChar >> s;
     s = s - 1;
     if (verbosity >= 1) cout << "s = " << s << endl;
-    
+
     file >> readChar >> readChar >> t;
     t = t - 1;
     if (verbosity  >= 1) cout << "t = " << t << endl;
-    
+
     file >> readChar >> readChar >> S;
     if (verbosity >= 1) cout << "S = " << S << endl;
-    
+
     file >> readChar >> readInt >> readChar >> d1;
     if (verbosity >= 1) cout << "d1 = " << d1 << endl;
-    
+
     file >> readChar >> readInt >> readChar >> d2;
     if (verbosity >= 1) cout << "d2 = " << d2 << endl;
-    
+
 	file >> readChar >> readChar >> readChar;
 	for (int i = 0; i < n; ++i) {
 		file >> readInt >> readChar;
@@ -47,7 +48,7 @@ Instance::Instance(char filename[], int verbosity) {
 			cout << p[i] << " ";
 		cout << "]" << endl;
 	}
-	
+
 	file >> readChar >> readChar >> readChar >> readChar;
 	for (int i = 0; i < n; ++i) {
 		file >> readInt >> readChar;
@@ -59,25 +60,29 @@ Instance::Instance(char filename[], int verbosity) {
 			cout << ph[i] << " ";
 		cout << "]" << endl;
 	}
-	
+
 	for (int i = 0; i < n; ++i) {
 		adj.push_back(vector<bool>(n,false));
 		d.push_back(vector<int>(n,0));
 		D.push_back(vector<float>(n,0.));
-		neighbors.push_back(vector<int>());
+		neighbors.push_back(vector<Node>());
+		predecessors.push_back(vector<Node>());
 	}
-	
+
 	file >> readChar >> readChar >> readChar >> readChar;
-	
+
 	while (file.peek() != ']') {
 		file >> readChar >> v1 >> v2 >> dist >> dev;
 		d[v1-1][v2-1] = dist;
 		D[v1-1][v2-1] = dev;
-		
-		if (dist != 0) adj[v1-1][v2-1] = true;
-		if (dist != 0) neighbors[v1-1].push_back(v2-1);
+
+		if (dist != 0) {
+            adj[v1-1][v2-1] = true;
+            neighbors[v1-1].push_back(v2-1);
+            predecessors[v2-1].push_back(v1-1);
+		}
 	}
-	
+
     file.close();
   }
 }
