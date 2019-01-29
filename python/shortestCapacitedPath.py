@@ -106,19 +106,25 @@ class ShortestCapacitedPath:
             else:
                 queue = [initNode]
                 self.iter = 0
-                while len(queue) > 0:
-                    u = queue.pop()
-                    for v in self.instance.neighbors[u]:
-                        modified = False
-                        for x in self.table[u].getList():
-                            weight = x[0] + self.nodeMetric(self.instance,v)
-                            if weight <= self.instance.S:
-                                modified = modified or self.table[v].addValue(weight,x[1] + self.edgeMetric(self.instance,u,v),u)               
-                                self.iter += 1
-                                if (self.iter % 1000000) == 0:
-                                    print("Nodes to process : " + str(len(queue)))
-                        if modified:
-                            queue.append(v)
+                for k in range(instance.n):
+                    print("Step : " + str(k) + " (" + str(len(queue)) + ")")
+                    newQueue = []
+                    modified = [False for i in range(instance.n)]
+                    for u in queue:
+                        for v in self.instance.neighbors[u]:
+                            mod = False
+                            for x in self.table[u].getList():
+                                weight = x[0] + self.nodeMetric(self.instance,v)
+                                if weight <= self.instance.S:
+                                    mod = mod or self.table[v].addValue(weight,x[1] + self.edgeMetric(self.instance,u,v),u)               
+                                    self.iter += 1
+                            if mod and not modified[v]:
+                                newQueue.append(v)
+                                modified[v] = True
+                    queue = newQueue
+                    newQueue = []
+                    if len(queue) == 0:
+                        break
         
         else:
             if scc:
@@ -156,19 +162,25 @@ class ShortestCapacitedPath:
             else:
                 queue = [initNode]
                 self.iter = 0
-                while len(queue) > 0:
-                    u = queue.pop()
-                    for v in self.instance.predecessors[u]:
-                        modified = False
-                        for x in self.table[u].getList():
-                            weight = x[0] + self.nodeMetric(self.instance,v)
-                            if weight <= self.instance.S:
-                                modified = modified or self.table[v].addValue(weight,x[1] + self.edgeMetric(self.instance,u,v),u)               
-                                self.iter += 1
-                                if (self.iter % 1000000) == 0:
-                                    print("Nodes to process : " + str(len(queue)))
-                        if modified:
-                            queue.append(v)
+                for k in range(instance.n):
+                    print("Step : " + str(k) + " (" + str(len(queue)) + ")")
+                    newQueue = []
+                    modified = [False for i in range(instance.n)]
+                    for u in queue:
+                        for v in self.instance.predecessors[u]:
+                            mod = False
+                            for x in self.table[u].getList():
+                                weight = x[0] + self.nodeMetric(self.instance,v)
+                                if weight <= self.instance.S:
+                                    mod = mod or self.table[v].addValue(weight,x[1] + self.edgeMetric(self.instance,v,u),u)               
+                                    self.iter += 1
+                            if mod and not modified[v]:
+                                newQueue.append(v)
+                                modified[v] = True
+                    queue = newQueue
+                    newQueue = []
+                    if len(queue) == 0:
+                        break
                             
         self.shortestPath = self.extractPathNodes(initNode,endNode,-1)
         self.lightestPath = self.extractPathNodes(initNode,endNode,0)

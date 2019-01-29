@@ -19,7 +19,7 @@ print("Loading instance...")
 #instance = Instance("../instances/2400_USA-road-d.COL.gr")
 #instance = Instance("../instances/2500_USA-road-d.BAY.gr")
 
-instance = Instance("../instances/2500_USA-road-d.BAY.gr")
+instance = Instance("../instances/2500_USA-road-d.COL.gr")
 
 print("Done.")
 
@@ -72,42 +72,42 @@ print("Semi worst case SCP done.")
 print("")
 
 # compte le plus court chemin en nombre d'arêtes pour aller de s à t
-leastEdgeSCP = ShortestCapacitedPath(instance,instance.s,instance.t,staticNodeMetric,leastEdgeMetric,False,True)
-print(leastEdgeSCP.table[instance.t].getList()[-1][1]-2)
-leastDeviationSCP = ShortestCapacitedPath(instance,instance.s,instance.t,staticNodeMetric,deviationMetric,False,True)
-print(leastDeviationSCP.table[instance.t].getList()[-1][1])
-    
-mDs = min([e for e in instance.D[instance.s] if e > 0])
-mds = min([e for e in instance.d[instance.s] if e > 0])
+#leastEdgeSCP = ShortestCapacitedPath(instance,instance.s,instance.t,staticNodeMetric,leastEdgeMetric,False,True)
+#print(leastEdgeSCP.table[instance.t].getList()[-1][1]-2)
+#leastDeviationSCP = ShortestCapacitedPath(instance,instance.s,instance.t,staticNodeMetric,deviationMetric,False,True)
+#print(leastDeviationSCP.table[instance.t].getList()[-1][1])
+#    
+#mDs = min([e for e in instance.D[instance.s] if e > 0])
+#mds = min([e for e in instance.d[instance.s] if e > 0])
+#
+#mDt = 100000000
+#mdt = 100000000
+#for i in range(instance.n):
+#    if instance.adj[i][instance.t]:
+#        mDt = min(mDt,instance.D[i][instance.t])
+#        mdt = min(mdt,instance.d[i][instance.t])
+#    
+#mD = 10000000
+#md = 10000000
+#for i in range(instance.n):
+#    mD = min(mD,min([e for e in instance.D[i] if e > 0]))
+#    md = min(md,min([e for e in instance.d[i] if e > 0]))
+#    
+#if mdt < mds:
+#    devt = min(mDt,instance.d1)
+#    devs = min(mDs,instance.d1 - devt)
+#else:
+#    devs = min(mDs,instance.d1)
+#    devt = min(mDt,instance.d1 - devs)
+#dev = min(instance.d1 - devt - devs,mD*(leastEdgeSCP.table[instance.t].getList()[-1][1]-2))
+#dev = min(instance.d1,leastDeviationSCP.table[instance.t].getList()[-1][1]) - devs - devt
+#
+#if leastDeviationSCP.table[instance.t].getList()[-1][1] > instance.d1 + devs + devt:
+#    infBound = staticSCP.shortestPath.dist + min(leastDeviationSCP.table[instance.t].getList()[-1][1],instance.d1)*md
+#else:
+#    infBound = staticSCP.shortestPath.dist + devt*mdt + devs*mds + dev*md
 
-mDt = 100000000
-mdt = 100000000
-for i in range(instance.n):
-    if instance.adj[i][instance.t]:
-        mDt = min(mDt,instance.D[i][instance.t])
-        mdt = min(mdt,instance.d[i][instance.t])
-    
-mD = 10000000
-md = 10000000
-for i in range(instance.n):
-    mD = min(mD,min([e for e in instance.D[i] if e > 0]))
-    md = min(md,min([e for e in instance.d[i] if e > 0]))
-    
-if mdt < mds:
-    devt = min(mDt,instance.d1)
-    devs = min(mDs,instance.d1 - devt)
-else:
-    devs = min(mDs,instance.d1)
-    devt = min(mDt,instance.d1 - devs)
-dev = min(instance.d1 - devt - devs,mD*(leastEdgeSCP.table[instance.t].getList()[-1][1]-2))
-dev = min(instance.d1,leastDeviationSCP.table[instance.t].getList()[-1][1]) - devs - devt
-
-if leastDeviationSCP.table[instance.t].getList()[-1][1] > instance.d1 + devs + devt:
-    infBound = staticSCP.shortestPath.dist + min(leastDeviationSCP.table[instance.t].getList()[-1][1],instance.d1)*md
-else:
-    infBound = staticSCP.shortestPath.dist + devt*mdt + devs*mds + dev*md
-
-
+infBound = staticSCP.shortestPath.dist
 print("Shortest path = " + str(staticSCP.shortestPath.dist))
 
 print("Inf bound = " + str(infBound))

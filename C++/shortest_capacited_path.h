@@ -4,9 +4,9 @@
 #include <iostream>
 #include <algorithm>
 #include <vector>
+#include <deque>
 #include <assert.h>
 
-#include "strongly_connected_components.h"
 #include "instance.h"
 #include "path.h"
 #include "sorted_list.h"
@@ -66,93 +66,68 @@ public:
         for (int i = 0; i < instance.n; ++i) table.push_back(SortedList());
 
         table[initNode].addValue(nodeMetric(initNode),0,-1);
+
         if (!reverseMode) {
-            std::vector<Node> order;
-            unsigned int countDone = 0;
-            bool done[instance.n] = {false};
-            bool inOrder[instance.n] = {false};
-            std::vector< std::vector<Node> > sccs = sconnect(instance.neighbors, initNode);
-            for (std::vector< std::vector<Node> >::reverse_iterator it1 = sccs.rbegin(); it1 != sccs.rend(); ++it1) {
-                std::vector<Node>& scc = (*it1);
-                for (std::vector<Node>::reverse_iterator it2 = scc.rbegin(); it2 != scc.rend(); ++it2) {
-                    order.push_back(*it2);
-                }
-            }
-
-            for (unsigned int i = 0; i < order.size(); ++i) inOrder[order[i]] = true;
-            for (int u = 0; u < instance.n; ++u)
-                if (!inOrder[u]) order.push_back(u);
-
-            while (instance.n > countDone) {
-                for (unsigned int i = 0; i < order.size(); ++i) {
-                    Node u = order[i];
-                    if (!done[u]) {
-                        done[u] = true;
-                        countDone = countDone + 1;
-                        for (std::list<Pathway>::iterator it = table[u].ways.begin(); it != table[u].ways.end(); ++it) {
-                            Pathway way = (*it);
-                            for (unsigned int k = 0; k < instance.neighbors[u].size(); ++k) {
-                                Node v = instance.neighbors[u][k];
-                                int weight = way.weight + nodeMetric(v);
-                                if (weight <= instance.S) {
-                                    if (table[v].addValue(weight,way.value + edgeMetric(u,v),u)) {
-                                        if (done[v]) {
-                                            done[v] = false;
-                                            countDone = countDone - 1;
-                                        }
-                                    }
-                                }
-                                iter = iter + 1;
-                                //if ((iter % 1000000) == 0) std::cout << "Nodes to process : " << instance.n - countDone << std::endl;
-                            }
+            iter = 0;
+            std::deque<Node> nodes;
+            nodes.push_back(initNode);
+            for (int k = 0; k < instance.n; ++k) {
+                //std::cout << "Step : " << k << " (" << nodes.size() << ")" << std::endl;
+                bool modified[instance.n] = {false};
+                unsigned int nodesCount = nodes.size();
+                while (nodesCount > 0) {
+                    nodesCount -= 1;
+                    Node u = nodes.front();
+                    nodes.pop_front();
+                    for (unsigned int i = 0; i < instance.neighbors[u].size(); ++i) {
+                        Node v = instance.neighbors[u][i];
+                        bool mod = false;
+                        for (std::list<Pathway>::iterator ways_it = table[u].ways.begin(); ways_it != table[u].ways.end(); ++ways_it) {
+                            Pathway way = (*ways_it);
+                            int weight = way.weight + nodeMetric(v);
+                            if (weight <= instance.S)
+                                mod = mod || table[v].addValue(weight,way.value + edgeMetric(u,v),u);
+                            iter += 1;
+                        }
+                        if (mod && !modified[v]) {
+                            nodes.push_back(v);
+                            modified[v] = true;
                         }
                     }
                 }
+
+                if (nodes.size() == 0) break;
             }
         }
-
         else {
-            std::vector<Node> order;
-            unsigned int countDone = 0;
-            bool done[instance.n] = {false};
-            bool inOrder[instance.n] = {false};
-            std::vector< std::vector<Node> > sccs = sconnect(instance.predecessors, initNode);
-            for (std::vector< std::vector<Node> >::reverse_iterator it1 = sccs.rbegin(); it1 != sccs.rend(); ++it1) {
-                std::vector<Node>& scc = (*it1);
-                for (std::vector<Node>::reverse_iterator it2 = scc.rbegin(); it2 != scc.rend(); ++it2) {
-                    order.push_back(*it2);
-                }
-            }
-
-            for (unsigned int i = 0; i < order.size(); ++i) inOrder[order[i]] = true;
-            for (int u = 0; u < instance.n; ++u)
-                if (!inOrder[u]) order.push_back(u);
-
-            while (instance.n > countDone) {
-                for (unsigned int i = 0; i < order.size(); ++i) {
-                    Node u = order[i];
-                    if (!done[u]) {
-                        done[u] = true;
-                        countDone = countDone + 1;
-                        for (std::list<Pathway>::iterator it = table[u].ways.begin(); it != table[u].ways.end(); ++it) {
-                            Pathway way = (*it);
-                            for (unsigned int k = 0; k < instance.predecessors[u].size(); ++k) {
-                                Node v = instance.predecessors[u][k];
-                                int weight = way.weight + nodeMetric(v);
-                                if (weight <= instance.S) {
-                                    if (table[v].addValue(weight,way.value + edgeMetric(v,u),u)) {
-                                        if (done[v]) {
-                                            done[v] = false;
-                                            countDone = countDone - 1;
-                                        }
-                                    }
-                                }
-                                iter = iter + 1;
-                                //if ((iter % 1000000) == 0) std::cout << "Nodes to process : " << instance.n - countDone << std::endl;
-                            }
+            iter = 0;
+            std::deque<Node> nodes;
+            nodes.push_back(initNode);
+            for (int k = 0; k < instance.n; ++k) {
+                //std::cout << "Step : " << k << " (" << nodes.size() << ")" << std::endl;
+                bool modified[instance.n] = {false};
+                unsigned int nodesCount = nodes.size();
+                while (nodesCount > 0) {
+                    nodesCount -= 1;
+                    Node u = nodes.front();
+                    nodes.pop_front();
+                    for (unsigned int i = 0; i < instance.predecessors[u].size(); ++i) {
+                        Node v = instance.predecessors[u][i];
+                        bool mod = false;
+                        for (std::list<Pathway>::iterator ways_it = table[u].ways.begin(); ways_it != table[u].ways.end(); ++ways_it) {
+                            Pathway way = (*ways_it);
+                            int weight = way.weight + nodeMetric(v);
+                            if (weight <= instance.S)
+                                mod = mod || table[v].addValue(weight,way.value + edgeMetric(v,u),u);
+                            iter += 1;
+                        }
+                        if (mod && !modified[v]) {
+                            nodes.push_back(v);
+                            modified[v] = true;
                         }
                     }
                 }
+                if (nodes.size() == 0) break;
             }
         }
     }
