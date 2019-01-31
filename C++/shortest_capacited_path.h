@@ -140,7 +140,6 @@ public:
         std::vector<Pathway> ways = (table[t].getList());
         while (pathIdx < 0) pathIdx += table[t].size();
         int weight = ways[pathIdx].weight - nodeMetric(t);
-        std::cout << table[t].size() << std::endl;
         Node u = ways[pathIdx].pred;
 
         while (u != s) {

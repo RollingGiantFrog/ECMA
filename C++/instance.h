@@ -10,7 +10,7 @@ using namespace std;
 class Instance {
 public:
     Instance() {};
-	Instance(char filename[], int verbosity);
+	Instance(const char filename[], int verbosity);
 	bool hasEdge(Node node1, Node node2) const;
 	int nodeWeight(Node node) const;
 	int edgeDist(Node node1, Node node2) const;

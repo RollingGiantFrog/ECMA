@@ -19,7 +19,7 @@ print("Loading instance...")
 #instance = Instance("../instances/2400_USA-road-d.COL.gr")
 #instance = Instance("../instances/2500_USA-road-d.BAY.gr")
 
-instance = Instance("../instances/2500_USA-road-d.COL.gr")
+instance = Instance("../instances/1100_USA-road-d.NY.gr")
 
 print("Done.")
 
@@ -39,7 +39,7 @@ def deviationMetric(instance,u,v):
     return instance.D[u][v]
 
 def semiWorstCaseNodeMetric(instance,u):
-    return instance.nodeWeight(u) + instance.ph[u]
+    return instance.nodeWeight(u) + 2*instance.ph[u]
     
 def worstCaseNodeMetric(instance,u):
     return instance.nodeWeight(u) + 2*instance.ph[u]
@@ -56,6 +56,8 @@ def parameterizedWorstCaseNodeMetric(instance,u,penalty):
 def parameterizedWorstCaseEdgeMetric(instance,u,v,penalty):
     return instance.edgeDist(u,v) * (1. + penalty*instance.D[u][v])
     
+    
+instance.S = instance.S * 2
 print("Static SCP resolution")
 staticSCP = ShortestCapacitedPath(instance,instance.s,instance.t,staticNodeMetric,staticEdgeMetric,False,True)
 print("Static SCP done.")
@@ -63,7 +65,7 @@ print("Static SCP done.")
 #worstCaseSCP = ShortestCapacitedPath(instance,worstCaseNodeMetric,worstCaseEdgeMetric)
 #print("Worst case SCP done.")
 print("\nSemi worst case SCP resolution")
-semiWorstCaseSCP = ShortestCapacitedPath(instance,instance.s,instance.t,semiWorstCaseNodeMetric,worstCaseEdgeMetric,False,True)
+semiWorstCaseSCP = ShortestCapacitedPath(instance,instance.s,instance.t,semiWorstCaseNodeMetric,worstCaseEdgeMetric,False,False)
 print("Semi worst case SCP done.")
 #print("\nQuadratic edges SCP resolution")
 #quadraticEdgeSCP = ShortestCapacitedPath(instance,worstCaseNodeMetric,quadraticEdgeMetric)

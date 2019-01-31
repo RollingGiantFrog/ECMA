@@ -116,7 +116,7 @@ class ShortestCapacitedPath:
                             for x in self.table[u].getList():
                                 weight = x[0] + self.nodeMetric(self.instance,v)
                                 if weight <= self.instance.S:
-                                    mod = mod or self.table[v].addValue(weight,x[1] + self.edgeMetric(self.instance,u,v),u)               
+                                    mod = self.table[v].addValue(weight,x[1] + self.edgeMetric(self.instance,u,v),u) or mod              
                                     self.iter += 1
                             if mod and not modified[v]:
                                 newQueue.append(v)
