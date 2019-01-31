@@ -27,7 +27,6 @@ bool edgeCompare(PathEdge edge1, PathEdge edge2);
 class Path {
 public:
 	Path(const Instance& instance, vector<Node> path);
-	void compute(vector<Node> path);
 
 	const Instance& instance;
 	vector<Node> path;
