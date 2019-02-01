@@ -4,6 +4,9 @@ Created on Sun Jan 20 23:02:02 2019
 
 @author: Victor
 """
+from os import listdir
+from os.path import isfile, join 
+import io
 
 from instance import *
 from path import *     
@@ -22,6 +25,9 @@ print("Loading instance...")
 instance = Instance("../instances/1100_USA-road-d.NY.gr")
 
 print("Done.")
+=======
+from remove_nodes import *
+>>>>>>> 49ba347ddf4ca6beb38a98db74da19e9017e58ff
 
 def noneNodeMetric(instance,u):
     return 0
@@ -56,103 +62,88 @@ def parameterizedWorstCaseNodeMetric(instance,u,penalty):
 def parameterizedWorstCaseEdgeMetric(instance,u,v,penalty):
     return instance.edgeDist(u,v) * (1. + penalty*instance.D[u][v])
     
-    
-instance.S = instance.S * 2
-print("Static SCP resolution")
-staticSCP = ShortestCapacitedPath(instance,instance.s,instance.t,staticNodeMetric,staticEdgeMetric,False,True)
-print("Static SCP done.")
-#print("\nWorst case SCP resolution")
-#worstCaseSCP = ShortestCapacitedPath(instance,worstCaseNodeMetric,worstCaseEdgeMetric)
-#print("Worst case SCP done.")
-print("\nSemi worst case SCP resolution")
-semiWorstCaseSCP = ShortestCapacitedPath(instance,instance.s,instance.t,semiWorstCaseNodeMetric,worstCaseEdgeMetric,False,False)
-print("Semi worst case SCP done.")
-#print("\nQuadratic edges SCP resolution")
-#quadraticEdgeSCP = ShortestCapacitedPath(instance,worstCaseNodeMetric,quadraticEdgeMetric)
-#print("nQuadratic edges SCP done.")
+files = [f for f in listdir("../instances/") if isfile(join("../instances/", f))]
+for k in range(len(files)):
+	file = files[k]
+	print("Processing " + file + " ... (" + str(k+1) + "/" + str(len(files)) + ")")
+	instance = Instance("../instances/" + file)
+	penalty = 2.
+	bestBound = 10000000000000
+	feasibleFound = False
+	
+	for i in range(3):
+		print("Trying with penalty = " + str(penalty))
+		nodeMetric = lambda instance,u : parameterizedWorstCaseNodeMetric(instance,u,penalty)
+		edgeMetric = worstCaseEdgeMetric
+		scp = ShortestCapacitedPath(instance,instance.s,instance.t,nodeMetric,edgeMetric,False,False)
+		
+		for i in range(scp.table[instance.t].size()):
+			path = scp.extractPathNodes(instance.s,instance.t,i)
+			if path.worstWeight <= instance.S:
+				if bestBound > path.worstDist:
+					bestBound = path.worstDist
+					feasibleFound = True
+			
+		penalty = penalty/2.
+	
+	while not feasibleFound:
+		print("Trying with penalty = " + str(penalty))
+		nodeMetric = lambda instance,u : parameterizedWorstCaseNodeMetric(instance,u,penalty)
+		edgeMetric = worstCaseEdgeMetric
+		scp = ShortestCapacitedPath(instance,instance.s,instance.t,nodeMetric,edgeMetric,False,False)
+		
+		for i in range(scp.table[instance.t].size()):
+			path = scp.extractPathNodes(instance.s,instance.t,i)
+			if path.worstWeight <= instance.S:
+				if bestBound > path.worstDist:
+					bestBound = path.worstDist
+					feasibleFound = True
+			
+		penalty = penalty/2.
+		
+	
+	initialNodes = instance.n
+	initialEdges = instance.m
+	
+	instance = preprocessInstance(instance,bestBound)
+	
+	instance.write("../preprocessed_instances/" + str(file))
+	
+	removedNodes = initialNodes - instance.n
+	pRemovedNodes = int(1000*removedNodes/initialNodes)/1000.
+	removedEdges = initialEdges - instance.m
+	pRemovedEdges = int(1000*removedEdges/initialEdges)/1000.
+	
+	print("Done. [Bound = " + str(bestBound) + ", " + str() + " nodes removed " + str(removedNodes) + " (" + str(pRemovedNodes) + "), edges removed " + str(removedEdges) + " (" + str(pRemovedEdges) + ")].")
+	print("")
+	
+	with io.open("../results_heuristic_worst_case_dist.csv",'a') as f:
+		f.write(file + u";" + str(bestBound) + "\n")
+	
+	
 
-print("")
+# print("Loading instance...")
 
-# compte le plus court chemin en nombre d'arêtes pour aller de s à t
-#leastEdgeSCP = ShortestCapacitedPath(instance,instance.s,instance.t,staticNodeMetric,leastEdgeMetric,False,True)
-#print(leastEdgeSCP.table[instance.t].getList()[-1][1]-2)
-#leastDeviationSCP = ShortestCapacitedPath(instance,instance.s,instance.t,staticNodeMetric,deviationMetric,False,True)
-#print(leastDeviationSCP.table[instance.t].getList()[-1][1])
-#    
-#mDs = min([e for e in instance.D[instance.s] if e > 0])
-#mds = min([e for e in instance.d[instance.s] if e > 0])
-#
-#mDt = 100000000
-#mdt = 100000000
-#for i in range(instance.n):
-#    if instance.adj[i][instance.t]:
-#        mDt = min(mDt,instance.D[i][instance.t])
-#        mdt = min(mdt,instance.d[i][instance.t])
-#    
-#mD = 10000000
-#md = 10000000
-#for i in range(instance.n):
-#    mD = min(mD,min([e for e in instance.D[i] if e > 0]))
-#    md = min(md,min([e for e in instance.d[i] if e > 0]))
-#    
-#if mdt < mds:
-#    devt = min(mDt,instance.d1)
-#    devs = min(mDs,instance.d1 - devt)
-#else:
-#    devs = min(mDs,instance.d1)
-#    devt = min(mDt,instance.d1 - devs)
-#dev = min(instance.d1 - devt - devs,mD*(leastEdgeSCP.table[instance.t].getList()[-1][1]-2))
-#dev = min(instance.d1,leastDeviationSCP.table[instance.t].getList()[-1][1]) - devs - devt
-#
-#if leastDeviationSCP.table[instance.t].getList()[-1][1] > instance.d1 + devs + devt:
-#    infBound = staticSCP.shortestPath.dist + min(leastDeviationSCP.table[instance.t].getList()[-1][1],instance.d1)*md
-#else:
-#    infBound = staticSCP.shortestPath.dist + devt*mdt + devs*mds + dev*md
+# instance = Instance("../instances/1000_USA-road-d.BAY.gr")
 
-infBound = staticSCP.shortestPath.dist
-print("Shortest path = " + str(staticSCP.shortestPath.dist))
+# print("Done.")
 
-print("Inf bound = " + str(infBound))
+# print("Static SCP resolution")
+# staticSCP = ShortestCapacitedPath(instance,instance.s,instance.t,staticNodeMetric,staticEdgeMetric,False,True)
+# print("Static SCP done.")
+# print("\nSemi worst case SCP resolution")
+# semiWorstCaseSCP = ShortestCapacitedPath(instance,instance.s,instance.t,semiWorstCaseNodeMetric,worstCaseEdgeMetric,False,True)
+# print("Semi worst case SCP done.")
 
-#if (worstCaseSCP.shortestPath != None and worstCaseSCP.shortestPath.worstWeight <= instance.S):
-#    print("Feasible solution (worst case shortest path) = " + str(worstCaseSCP.shortestPath.worstDist) + " (" + str(int(1000*(1-infBound/worstCaseSCP.shortestPath.worstDist))/10.) + "%)")
-#if (worstCaseSCP.lightestPath != None and worstCaseSCP.lightestPath.worstWeight <= instance.S):
-#    print("Feasible solution (worst case lightest path) = " + str(worstCaseSCP.lightestPath.worstDist) + " (" + str(int(1000*(1-infBound/worstCaseSCP.lightestPath.worstDist))/10.) + "%)")
+# print("")
 
-if (semiWorstCaseSCP.shortestPath != None and semiWorstCaseSCP.shortestPath.worstWeight <= instance.S):
-    print("Feasible solution (semi worst case shortest path) = " + str(semiWorstCaseSCP.shortestPath.worstDist) + " (" + str(int(1000*(1-infBound/semiWorstCaseSCP.shortestPath.worstDist))/10.) + "%)")
-if (semiWorstCaseSCP.lightestPath != None and semiWorstCaseSCP.lightestPath.worstWeight <= instance.S):
-    print("Feasible solution (semi worst case lightest path) = " + str(semiWorstCaseSCP.lightestPath.worstDist) + " (" + str(int(1000*(1-infBound/semiWorstCaseSCP.lightestPath.worstDist))/10.) + "%)")
+# infBound = staticSCP.shortestPath.dist
+# print("Shortest path = " + str(staticSCP.shortestPath.dist))
 
-#if (quadraticEdgeSCP.shortestPath != None and quadraticEdgeSCP.shortestPath.worstWeight <= instance.S):
-#    print("Feasible solution (quadratic edges shortest path) = " + str(quadraticEdgeSCP.shortestPath.worstDist) + " (" + str(int(1000*(1-infBound/quadraticEdgeSCP.shortestPath.worstDist))/10.) + "%)")
-#if (quadraticEdgeSCP.lightestPath != None and quadraticEdgeSCP.lightestPath.worstWeight <= instance.S):
-#    print("Feasible solution (quadratic edges lightest path) = " + str(quadraticEdgeSCP.lightestPath.worstDist) + " (" + str(int(1000*(1-infBound/quadraticEdgeSCP.lightestPath.worstDist))/10.) + "%)")
-  
-#if (quadraticEdgeSCP.shortestPath != None and quadraticEdgeSCP.shortestPath.worstWeight <= instance.S):
-#    print("Feasible solution (quadratic edges shortest path) = " + str(quadraticEdgeSCP.shortestPath.worstDist) + " (" + str(int(1000*(1-infBound/quadraticEdgeSCP.shortestPath.worstDist))/10.) + "%)")
-#if (quadraticEdgeSCP.lightestPath != None and quadraticEdgeSCP.lightestPath.worstWeight <= instance.S):
-#    print("Feasible solution (quadratic edges lightest path) = " + str(quadraticEdgeSCP.lightestPath.worstDist) + " (" + str(int(1000*(1-infBound/quadraticEdgeSCP.lightestPath.worstDist))/10.) + "%)")
-    
-#
-#staticS = ShortestCapacitedPath(instance,instance.s,instance.t,staticNodeMetric,staticEdgeMetric,False,False)
-#staticT = ShortestCapacitedPath(instance,instance.t,instance.s,staticNodeMetric,staticEdgeMetric,True,False)
-#
-#supBound = semiWorstCaseSCP.shortestPath.worstDist
-#
-#nodeCount = 0
-#removedNodes = []
-#for u in range(instance.n):
-#    if staticS.table[u].empty() or staticT.table[u].empty() or staticS.table[u][0][0] + staticT.table[u][0][0] - instance.nodeWeight(u) > instance.S or staticS.table[u][-1][1] + staticT.table[u][-1][1] >= supBound:
-#        print(u)
-#        nodeCount += 1
-#        removedNodes += [u]
-#
-#
-#        
-#edgeCount = 0
-#for u in range(instance.n):
-#    for v in instance.neighbors[u]:
-#        if (staticS.table[u].empty() or  staticT.table[v].empty() or staticS.table[u][-1][1] + staticT.table[v][-1][1] >= supBound) and (staticS.table[v].empty() or staticT.table[u].empty() or staticS.table[v].getList()[-1][1] + staticT.table[u][-1][1] >= supBound):
-#            print(u,v)
-#            edgeCount += 1
+# print("Inf bound = " + str(infBound))
+
+# if (semiWorstCaseSCP.shortestPath != None and semiWorstCaseSCP.shortestPath.worstWeight <= instance.S):
+    # print("Feasible solution (semi worst case shortest path) = " + str(semiWorstCaseSCP.shortestPath.worstDist) + " (" + str(int(1000*(1-infBound/semiWorstCaseSCP.shortestPath.worstDist))/10.) + "%)")
+# if (semiWorstCaseSCP.lightestPath != None and semiWorstCaseSCP.lightestPath.worstWeight <= instance.S):
+    # print("Feasible solution (semi worst case lightest path) = " + str(semiWorstCaseSCP.lightestPath.worstDist) + " (" + str(int(1000*(1-infBound/semiWorstCaseSCP.lightestPath.worstDist))/10.) + "%)")
+

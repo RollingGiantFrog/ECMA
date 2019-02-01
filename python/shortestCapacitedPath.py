@@ -100,14 +100,14 @@ class ShortestCapacitedPath:
                                         if self.table[v].addValue(weight,x[1] + self.edgeMetric(self.instance,u,v),u):
                                             done[v] = False
                                     self.iter += 1
-                                    if (self.iter % 200000) == 0:
-                                        print("Nodes to process : " + str(instance.n-sum(done)))
+                                    # if (self.iter % 200000) == 0:
+                                        # print("Nodes to process : " + str(instance.n-sum(done)))
     
             else:
                 queue = [initNode]
                 self.iter = 0
                 for k in range(instance.n):
-                    print("Step : " + str(k) + " (" + str(len(queue)) + ")")
+                    # print("Step : " + str(k) + " (" + str(len(queue)) + ")")
                     newQueue = []
                     modified = [False for i in range(instance.n)]
                     for u in queue:
@@ -116,7 +116,7 @@ class ShortestCapacitedPath:
                             for x in self.table[u].getList():
                                 weight = x[0] + self.nodeMetric(self.instance,v)
                                 if weight <= self.instance.S:
-                                    mod = self.table[v].addValue(weight,x[1] + self.edgeMetric(self.instance,u,v),u) or mod              
+                                    mod = self.table[v].addValue(weight,x[1] + self.edgeMetric(self.instance,u,v),u) or mod
                                     self.iter += 1
                             if mod and not modified[v]:
                                 newQueue.append(v)
@@ -156,14 +156,14 @@ class ShortestCapacitedPath:
                                         if self.table[v].addValue(weight,x[1] + self.edgeMetric(self.instance,v,u),u):
                                             done[v] = False
                                     self.iter += 1
-                                    if (self.iter % 200000) == 0:
-                                        print("Nodes to process : " + str(instance.n-sum(done)))
+                                    # if (self.iter % 200000) == 0:
+                                        # print("Nodes to process : " + str(instance.n-sum(done)))
     
             else:
                 queue = [initNode]
                 self.iter = 0
                 for k in range(instance.n):
-                    print("Step : " + str(k) + " (" + str(len(queue)) + ")")
+                    # print("Step : " + str(k) + " (" + str(len(queue)) + ")")
                     newQueue = []
                     modified = [False for i in range(instance.n)]
                     for u in queue:
