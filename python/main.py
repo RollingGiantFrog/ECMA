@@ -13,6 +13,21 @@ from path import *
 from shortestCapacitedPath import *
 from remove_nodes import *
 
+print("Loading instance...")
+
+#instance = Instance("../instances/20_USA-road-d.COL.gr")
+#instance = Instance("../instances/100_USA-road-d.BAY.gr")
+#instance = Instance("../instances/180_USA-road-d.BAY.gr")
+#instance = Instance("../instances/400_USA-road-d.BAY.gr")
+#instance = Instance("../instances/800_USA-road-d.NY.gr")
+#instance = Instance("../instances/2400_USA-road-d.COL.gr")
+#instance = Instance("../instances/2500_USA-road-d.BAY.gr")
+
+instance = Instance("../instances/1100_USA-road-d.NY.gr")
+
+print("Done.")
+
+
 def noneNodeMetric(instance,u):
     return 0
 
@@ -29,7 +44,7 @@ def deviationMetric(instance,u,v):
     return instance.D[u][v]
 
 def semiWorstCaseNodeMetric(instance,u):
-    return instance.nodeWeight(u) + instance.ph[u]
+    return instance.nodeWeight(u) + 2*instance.ph[u]
     
 def worstCaseNodeMetric(instance,u):
     return instance.nodeWeight(u) + 2*instance.ph[u]
@@ -49,6 +64,7 @@ def parameterizedWorstCaseEdgeMetric(instance,u,v,penalty):
 factor = 1
 
 files = ["2200_USA-road-d.NY.gr"]
+files = [f for f in listdir("../instances/") if isfile(join("../instances/", f))]
 for k in range(len(files)):
 	file = files[k]
 	print("Processing " + file + " ... (" + str(k+1) + "/" + str(len(files)) + ")")
