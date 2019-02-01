@@ -59,7 +59,7 @@ for k in range(24,len(files)):
 	for i in range(3):
 		print("Trying with penalty = " + str(penalty))
 		nodeMetric = lambda instance,u : parameterizedWorstCaseNodeMetric(instance,u,penalty)
-		edgeMetric = lambda instance,u,v : parameterizedWorstCaseEdgeMetric(instance,u,v,penalty)
+		edgeMetric = worstCaseEdgeMetric
 		scp = ShortestCapacitedPath(instance,instance.s,instance.t,nodeMetric,edgeMetric,False,False)
 		
 		for i in range(scp.table[instance.t].size()):
@@ -74,7 +74,7 @@ for k in range(24,len(files)):
 	while not feasibleFound:
 		print("Trying with penalty = " + str(penalty))
 		nodeMetric = lambda instance,u : parameterizedWorstCaseNodeMetric(instance,u,penalty)
-		edgeMetric = lambda instance,u,v : parameterizedWorstCaseEdgeMetric(instance,u,v,penalty)
+		edgeMetric = worstCaseEdgeMetric
 		scp = ShortestCapacitedPath(instance,instance.s,instance.t,nodeMetric,edgeMetric,False,False)
 		
 		for i in range(scp.table[instance.t].size()):
@@ -102,7 +102,7 @@ for k in range(24,len(files)):
 	print("Done. [Bound = " + str(bestBound) + ", " + str() + " nodes removed " + str(removedNodes) + " (" + str(pRemovedNodes) + "), edges removed " + str(removedEdges) + " (" + str(pRemovedEdges) + ")].")
 	print("")
 	
-	with io.open("../results_heuristic.csv",'a') as f:
+	with io.open("../results_heuristic_worst_case_dist.csv",'a') as f:
 		f.write(file + u";" + str(bestBound) + "\n")
 	
 	
