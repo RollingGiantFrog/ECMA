@@ -86,7 +86,7 @@ public:
                             Pathway way = (*ways_it);
                             int weight = way.weight + nodeMetric(v);
                             if (weight <= instance.S)
-                                mod = mod || table[v].addValue(weight,way.value + edgeMetric(u,v),u);
+                                mod = table[v].addValue(weight,way.value + edgeMetric(u,v),u) || mod;
                             iter += 1;
                         }
                         if (mod && !modified[v]) {
@@ -118,7 +118,7 @@ public:
                             Pathway way = (*ways_it);
                             int weight = way.weight + nodeMetric(v);
                             if (weight <= instance.S)
-                                mod = mod || table[v].addValue(weight,way.value + edgeMetric(v,u),u);
+                                mod = table[v].addValue(weight,way.value + edgeMetric(v,u),u) || mod;
                             iter += 1;
                         }
                         if (mod && !modified[v]) {
@@ -132,15 +132,16 @@ public:
         }
     }
 
-    Path extractPathNodes(Node s, Node t, unsigned int pathIdx) const {
+    Path extractPathNodes(Node s, Node t, int pathIdx) const {
         assert(!table[t].empty());
 
         std::vector<Node> nodes;
         nodes.push_back(t);
 
         std::vector<Pathway> ways = (table[t].getList());
-        int weight = ways[pathIdx % table[t].size()].weight - nodeMetric(t);
-        Node u = ways[pathIdx % table[t].size()].pred;
+        while(pathIdx < 0) pathIdx += table[t].size();
+        int weight = ways[pathIdx].weight - nodeMetric(t);
+        Node u = ways[pathIdx].pred;
 
         while (u != s) {
             nodes.push_back(u);

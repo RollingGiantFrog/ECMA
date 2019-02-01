@@ -7,7 +7,7 @@
 
 using namespace std;
 
-Instance::Instance(char filename[], int verbosity) {
+Instance::Instance(const char filename[], int verbosity) {
   char readChar;
   int readInt;
   int v1;

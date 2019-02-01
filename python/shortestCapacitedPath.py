@@ -196,7 +196,7 @@ class ShortestCapacitedPath:
             nodes = [u] + nodes
             list = self.table[u].getList()
             for x in list:
-                if x[0] == weight:
+                if abs(x[0] - weight) < 0.001:
                     weight -= self.nodeMetric(self.instance,u)
                     u = x[2]
         

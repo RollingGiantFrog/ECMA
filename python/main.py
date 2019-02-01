@@ -46,13 +46,15 @@ def parameterizedWorstCaseNodeMetric(instance,u,penalty):
 def parameterizedWorstCaseEdgeMetric(instance,u,v,penalty):
     return instance.edgeDist(u,v) * (1. + penalty*instance.D[u][v])
     
+factor = 1
 
-files = [f for f in listdir("../instances/") if isfile(join("../instances/", f))]
+files = ["2200_USA-road-d.NY.gr"]
 for k in range(len(files)):
 	file = files[k]
 	print("Processing " + file + " ... (" + str(k+1) + "/" + str(len(files)) + ")")
 	instance = Instance("../instances/" + file)
-	penalty = 2.
+	instance.S *= factor
+	penalty = 2
 	bestBound = 10000000000000
 	feasibleFound = False
 	
@@ -64,7 +66,7 @@ for k in range(len(files)):
 		
 		for i in range(scp.table[instance.t].size()):
 			path = scp.extractPathNodes(instance.s,instance.t,i)
-			if path.worstWeight <= instance.S:
+			if path.worstWeight <= instance.S/factor:
 				if bestBound > path.worstDist:
 					bestBound = path.worstDist
 					feasibleFound = True
@@ -79,7 +81,7 @@ for k in range(len(files)):
 		
 		for i in range(scp.table[instance.t].size()):
 			path = scp.extractPathNodes(instance.s,instance.t,i)
-			if path.worstWeight <= instance.S:
+			if path.worstWeight <= instance.S/factor:
 				if bestBound > path.worstDist:
 					bestBound = path.worstDist
 					feasibleFound = True
@@ -102,8 +104,8 @@ for k in range(len(files)):
 	print("Done. [Bound = " + str(bestBound) + ", " + str() + " nodes removed " + str(removedNodes) + " (" + str(pRemovedNodes) + "), edges removed " + str(removedEdges) + " (" + str(pRemovedEdges) + ")].")
 	print("")
 	
-	with io.open("../results_heuristic_worst_case_dist.csv",'a') as f:
-		f.write(file + u";" + str(bestBound) + "\n")
+	#with io.open("../results_heuristic_worst_case_dist.csv",'a') as f:
+	#	f.write(file + u";" + str(bestBound) + "\n")
 	
 	
 
