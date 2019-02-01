@@ -132,11 +132,11 @@ InfoSolution dualization(const Instance& instance,  int TimeLim){
 		expr.end();
 		
 		IloCplex cplex(model);
-		cplex.setParam(IloCplex::Param::Threads,1);
+		//cplex.setParam(IloCplex::Param::Threads,1);
 		//cplex.setParam(IloCplex::PreInd, 0);
 		
 		//cplex.setOut(env.getNullStream());
-		cplex.setParam(IloCplex::MIPDisplay, 4);
+		cplex.setParam(IloCplex::MIPDisplay, 2);
 		cplex.setParam(IloCplex::TiLim, TimeLim);
 		cplex.solve();
 
@@ -180,6 +180,8 @@ InfoSolution dualization(const Instance& instance,  int TimeLim){
 	} 
 	catch (const IloException& e){
 		cerr << e;
+		model.end();
+		env.end();
 		return InfoSolution({-2.,0.,0,false, 0,"dualization"});
 	}
 
@@ -296,7 +298,7 @@ InfoSolution dualization(const Instance& instance,  int TimeLim, const Path& pat
 		IloCplex cplex(model);
 		//cplex.setParam(IloCplex::Param::Threads,1);
 		//cplex.setOut(env.getNullStream());
-		cplex.setParam(IloCplex::MIPDisplay, 4);
+		cplex.setParam(IloCplex::MIPDisplay, 0);
 		cplex.setParam(IloCplex::TiLim, TimeLim);
 
 
@@ -352,6 +354,8 @@ InfoSolution dualization(const Instance& instance,  int TimeLim, const Path& pat
 	} 
 	catch (const IloException& e){
 		cerr << e;
+		model.end();
+		env.end();
 		return InfoSolution({-2.,0.,0,false, 0,"dualization"});
 	}
 }
@@ -362,6 +366,9 @@ InfoSolution cuttingplanes(const Instance& instance,  int TimeLim){
 	IloEnv env;
 	IloModel model(env);
 	IloArray<IloBoolVarArray> x(env, instance.n);
+	vector<Node> feasibleSolution;
+	double feasibleDist = 1000000000000.;
+
 	for (int i = 0; i < instance.n; ++i) {
 		x[i] = IloBoolVarArray(env, instance.n);
 		for (int j = 0; j < instance.n; j++) {
@@ -436,7 +443,7 @@ InfoSolution cuttingplanes(const Instance& instance,  int TimeLim){
 	expr.end();
 
 	IloCplex cplex(model);
-	cplex.setParam(IloCplex::Param::Threads,1);
+	//cplex.setParam(IloCplex::Param::Threads,1);
 	IloExpr cut1 = -z;
 	for (int i = 0; i < instance.n; ++i) {
 		for (int j = 0; j < instance.n; ++j) {
@@ -453,15 +460,15 @@ InfoSolution cuttingplanes(const Instance& instance,  int TimeLim){
 	}
 	model.add(cut2 <= instance.S);
 	cut2.end();
-	//cplex.setOut(env.getNullStream());
+	cplex.setOut(env.getNullStream());
+	cplex.setParam(IloCplex::MIPDisplay,0);
 	cplex.setParam(IloCplex::Param::Threads,1);
 	cplex.solve();
 	bool cutting = true;
 	double end = get_time();
 	double t = end - start;
-	while (cutting and t < TimeLim){
+	while (cutting && (t < double(TimeLim))){
 		cutting = false;
-
 		vector<int> nodes;
 		int currentNode = instance.s;
 		while (currentNode != instance.t) {
@@ -507,10 +514,16 @@ InfoSolution cuttingplanes(const Instance& instance,  int TimeLim){
 			model.add(cut2 <= instance.S);
 			cut2.end();
 		}
+
+		else{
+			cout << (path.worstWeight< instance.S +0.001)<< endl;
+			cout << path.worstDist << endl;
+			if (path.worstDist < feasibleDist)
+				feasibleSolution = nodes;
+		}
 		cplex.solve();
-		double end = get_time();
-		double t = end - start;
-		//cout << "time :" << t << endl;
+		end = get_time();
+		t = end - start;
 	}
 	double t1 = t;
 	double v = cplex.getObjValue();
@@ -526,9 +539,9 @@ InfoSolution cuttingplanes(const Instance& instance,  int TimeLim){
 	
 
 	if (!cutting)
-		return InfoSolution({v, v, t, true, t1,"cuttingplanes"});
+		return InfoSolution({feasibleDist, feasibleDist, t, true, t1,"cuttingplanes", feasibleSolution});
 	else 
-		return InfoSolution({-1., v, t, false, t1,"cuttingplanes"});
+		return InfoSolution({feasibleDist, -1., t, false, t1,"cuttingplanes", feasibleSolution});
 }
 
 InfoSolution cuttingplanes(const Instance& instance,  int TimeLim, const Path& path){
@@ -537,6 +550,8 @@ InfoSolution cuttingplanes(const Instance& instance,  int TimeLim, const Path& p
 	IloModel model(env);
 	IloNumVar z(env);
 	IloBoolVarArray y(env,instance.n);
+	vector<Node> feasibleSolution;
+	double feasibleDist = 1000000000000.;
 	IloArray<IloBoolVarArray> x(env, instance.n);
 	for (int i = 0; i < instance.n; ++i) {
 		x[i] = IloBoolVarArray(env, instance.n);
@@ -612,6 +627,7 @@ InfoSolution cuttingplanes(const Instance& instance,  int TimeLim, const Path& p
 
 	IloCplex cplex(model);
 	cplex.setParam(IloCplex::Param::Threads,1);
+	cplex.setParam(IloCplex::MIPDisplay, 2);
 	cplex.setOut(env.getNullStream());
 	IloExpr cut1 = -z;
 	for (int i = 0; i < instance.n; ++i) {
@@ -631,20 +647,63 @@ InfoSolution cuttingplanes(const Instance& instance,  int TimeLim, const Path& p
 	for (int i = 0; i < instance.n; ++i) {
 		cut2 += instance.p[i]*y[i];
 	}
-	for (unsigned int i = 0; i < path.nodes.size(); ++i) {
+	/*for (unsigned int i = 0; i < path.nodes.size(); ++i) {
 		if (path.nodes[i].dev > 0) cut2 += path.nodes[i].devWeight*y[path.nodes[i].node]*path.nodes[i].dev;
 		else break;
-	}
+	}*/
 	model.add(cut2 <= instance.S);
 	cut2.end();
-	cplex.solve();
+
+	IloNumVarArray startVar(env);
+ 	IloNumArray startVal(env);
+ 	bool nodesInPath[instance.n] = {false};
+ 	bool edgesInPath[instance.n][instance.n] = {false};
+ 	for (int i = 0; i < path.path.size(); ++i)
+ 		nodesInPath[path.path[i]] = true;
+
+ 	for (int i = 0; i < path.path.size()-1; ++i)
+ 		edgesInPath[path.path[i]][path.path[i+1]] = true;
+
+  
+  for (int i = 0; i < instance.n; ++i){
+  	if (nodesInPath[i]) {
+  		startVar.add(y[i]);
+  		startVal.add(true);
+  	}
+  	else {
+  		startVar.add(y[i]);
+  		startVal.add(false);
+  	}
+  	for (int j = 0; j < instance.n; ++j){
+			if (edgesInPath[i][j]) {
+  			startVar.add(x[i][j]);
+  			startVal.add(true);
+  		}
+  		else {
+  			if (instance.adj[i][j]){
+  				startVar.add(x[i][j]);
+  				startVal.add(false);
+  			}
+  		}
+	  }
+	}
+
+
+  startVar.add(z);
+  startVal.add(path.worstDist);
+
+	cplex.addMIPStart(startVar, startVal);
+  cout << "yo" << endl;
+  startVal.end();
+  startVar.end();
+  cplex.solve();
+  cout << "yo" << endl;
+
 	double end = get_time();
 	bool cutting = true;
  	double t = end - start;		
- 	while (cutting and t < TimeLim){
+	while (cutting && (t < double(TimeLim))){
 		cutting = false;
-
-
 		vector<int> nodes;
 		int currentNode = instance.s;
 		while (currentNode != instance.t) {
@@ -658,8 +717,10 @@ InfoSolution cuttingplanes(const Instance& instance,  int TimeLim, const Path& p
 		}
 		nodes.push_back(instance.t);
 		
-		Path path2(instance,nodes);
-		if (cplex.getValue(z) < 0.9999*path2.worstDist){
+		Path path(instance,nodes);
+
+		if (cplex.getValue(z) < 0.9999*path.worstDist){
+			cout << cplex.getValue(z) <<","<< path.worstDist<<endl;
 			cutting = true; 
 			IloExpr cut1 = -z;
 			for (int i = 0; i < instance.n; ++i) {
@@ -669,51 +730,55 @@ InfoSolution cuttingplanes(const Instance& instance,  int TimeLim, const Path& p
 					}
 				}
 			}
-			for (unsigned int i = 0; i < path2.edges.size(); ++i) {
-				if (path2.edges[i].dev > 0) cut1 += path2.edges[i].dist*x[path2.edges[i].node1][path2.edges[i].node2]*path2.edges[i].dev;
+			for (unsigned int i = 0; i < path.edges.size(); ++i) {
+				if (path.edges[i].dev > 0) cut1 += path.edges[i].dist*x[path.edges[i].node1][path.edges[i].node2]*path.edges[i].dev;
 				else break;
 			}
 			model.add(cut1 <= 0);
-			cut1.end();
 		}
 
-		if (path2.worstWeight*0.9999 > instance.S){
+		if (path.worstWeight*0.9999 > instance.S){
 			cutting = true;
 			IloExpr cut2(env);
 			for (int i = 0; i < instance.n; ++i) {
 				cut2 += instance.p[i]*y[i];
 			}
-			for (unsigned int i = 0; i < path2.nodes.size(); ++i) {
-				if (path2.nodes[i].dev > 0) cut2 += path2.nodes[i].devWeight*y[path2.nodes[i].node]*path2.nodes[i].dev;
+			for (unsigned int i = 0; i < path.nodes.size(); ++i) {
+				if (path.nodes[i].dev > 0) cut2 += path.nodes[i].devWeight*y[path.nodes[i].node]*path.nodes[i].dev;
 				else break;
 			}
 			model.add(cut2 <= instance.S);
 			cut2.end();
 		}
-		cplex.solve();
-		double end = get_time();
-		double t = end - start;
 
+		else{
+			cout << (path.worstWeight< instance.S +0.001)<< endl;
+			cout << path.worstDist << endl;
+			if (path.worstDist < feasibleDist)
+				feasibleSolution = nodes;
+		}
+		cplex.solve();
+		end = get_time();
+		t = end - start;
 	}
-	double v = cplex.getObjValue();
 	double t1 = t;
-	z.end();
-	y.end();
+	double v = cplex.getObjValue();
 	for(int i = 0; i < instance.n; ++i)
 		x[i].end();
 	x.end();
+	z.end();
+	y.end();
 	model.end();
 	env.end();
 	end = get_time();
 	t = end - start;
+	
+
 	if (!cutting)
-		return InfoSolution({v,v, t, true, t1, "cuttingplanes"});
+		return InfoSolution({feasibleDist, feasibleDist, t, true, t1,"cuttingplanes", feasibleSolution});
 	else 
-		return InfoSolution({-1., v, t, false, t1, "cuttingplanes"});
+		return InfoSolution({feasibleDist, -1., t, false, t1,"cuttingplanes", feasibleSolution});
 }
-
-
-
 ILOLAZYCONSTRAINTCALLBACK5(lazyCallbackCplexOpt,
 								 IloCplex, cplex,
 								 Instance, instance,
@@ -868,7 +933,7 @@ InfoSolution branchandcut(const Instance& instance,  int TimeLim){
 
 	IloCplex cplex(model);
 	cplex.setParam(IloCplex::Param::Threads,1);
-	cplex.setOut(env.getNullStream());
+	//cplex.setOut(env.getNullStream());
 	cplex.use(lazyCallbackCplexOpt(env,cplex,instance,x,y,z));
 	cplex.setParam(IloCplex::CutsFactor, 1.0);
 	cplex.setParam(IloCplex::EachCutLim, 0);
@@ -999,7 +1064,7 @@ InfoSolution branchandcut(const Instance& instance,  int TimeLim, const Path& pa
 	cut2.end();
 
 	IloCplex cplex(model);
-	cplex.setOut(env.getNullStream());
+	//cplex.setOut(env.getNullStream());
 	cplex.setParam(IloCplex::Param::Threads, 1);
 	cplex.use(lazyCallbackCplexOpt(env,cplex,instance,x,y,z));
 	cplex.setParam(IloCplex::CutsFactor, 1.0);

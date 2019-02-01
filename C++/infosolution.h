@@ -1,6 +1,9 @@
 #ifndef INFOSOLUTION_H
 #define INFOSOLUTION_H
 
+#include <vector>
+#include "node.h"
+
 struct InfoSolution
 {
 	float solution;
@@ -9,7 +12,7 @@ struct InfoSolution
 	bool optimal;
 	float tWithoutClosing;
 	char* method;
-	
+	vector<Node> nodes;
 };
 
 #endif
