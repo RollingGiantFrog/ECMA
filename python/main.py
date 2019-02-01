@@ -48,7 +48,7 @@ def parameterizedWorstCaseEdgeMetric(instance,u,v,penalty):
     
 
 files = [f for f in listdir("../instances/") if isfile(join("../instances/", f))]
-for k in range(24,len(files)):
+for k in range(len(files)):
 	file = files[k]
 	print("Processing " + file + " ... (" + str(k+1) + "/" + str(len(files)) + ")")
 	instance = Instance("../instances/" + file)
