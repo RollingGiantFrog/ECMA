@@ -6,11 +6,12 @@ Created on Sun Jan 20 23:02:02 2019
 """
 from os import listdir
 from os.path import isfile, join 
+import io
 
 from instance import *
 from path import *     
 from shortestCapacitedPath import *
-from removed_nodes import *
+from remove_nodes import *
 
 def noneNodeMetric(instance,u):
     return 0
@@ -47,14 +48,16 @@ def parameterizedWorstCaseEdgeMetric(instance,u,v,penalty):
     
 
 files = [f for f in listdir("../instances/") if isfile(join("../instances/", f))]
-for file in files:
-	print("Processing " + file + " ...")
+for k in range(24,len(files)):
+	file = files[k]
+	print("Processing " + file + " ... (" + str(k+1) + "/" + str(len(files)) + ")")
 	instance = Instance("../instances/" + file)
 	penalty = 2.
 	bestBound = 10000000000000
 	feasibleFound = False
 	
 	for i in range(3):
+		print("Trying with penalty = " + str(penalty))
 		nodeMetric = lambda instance,u : parameterizedWorstCaseNodeMetric(instance,u,penalty)
 		edgeMetric = lambda instance,u,v : parameterizedWorstCaseEdgeMetric(instance,u,v,penalty)
 		scp = ShortestCapacitedPath(instance,instance.s,instance.t,nodeMetric,edgeMetric,False,False)
@@ -69,6 +72,7 @@ for file in files:
 		penalty = penalty/2.
 	
 	while not feasibleFound:
+		print("Trying with penalty = " + str(penalty))
 		nodeMetric = lambda instance,u : parameterizedWorstCaseNodeMetric(instance,u,penalty)
 		edgeMetric = lambda instance,u,v : parameterizedWorstCaseEdgeMetric(instance,u,v,penalty)
 		scp = ShortestCapacitedPath(instance,instance.s,instance.t,nodeMetric,edgeMetric,False,False)
@@ -90,12 +94,17 @@ for file in files:
 	
 	instance.write("../preprocessed_instances/" + str(file))
 	
-	removedNodes = instance.n - initialNodes
-	pRemovedNodes = int(1000*removedNodes/instance.n)/1000
-	removedEdges = instance.m - initialEdges
-	pRemovedEdges = int(1000*removeEdges/instance.m)/1000
+	removedNodes = initialNodes - instance.n
+	pRemovedNodes = int(1000*removedNodes/initialNodes)/1000.
+	removedEdges = initialEdges - instance.m
+	pRemovedEdges = int(1000*removedEdges/initialEdges)/1000.
 	
 	print("Done. [Bound = " + str(bestBound) + ", " + str() + " nodes removed " + str(removedNodes) + " (" + str(pRemovedNodes) + "), edges removed " + str(removedEdges) + " (" + str(pRemovedEdges) + ")].")
+	print("")
+	
+	with io.open("../results_heuristic.csv",'a') as f:
+		f.write(file + u";" + str(bestBound) + "\n")
+	
 	
 
 # print("Loading instance...")

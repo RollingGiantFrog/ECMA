@@ -15,7 +15,7 @@ def worstCaseEdgeMetric(instance,u,v):
 	return instance.edgeDist(u,v) * (1. + instance.D[u][v])
     
 
-def preprocessNodes(instance, up_bound, staticSCP_s, static_SCP_t, s, t):
+def preprocessNodes(instance, up_bound, staticSCP_s, staticSCP_t, s, t):
 	l = []
 	S = instance.S
 	for i in range(instance.n):
@@ -37,7 +37,7 @@ def preprocessNodes(instance, up_bound, staticSCP_s, static_SCP_t, s, t):
 					l += [i]
 	return l
 
-def preprocessEdges(instance, up_bound, staticSCP_s, static_SCP_t, s, t):
+def preprocessEdges(instance, up_bound, staticSCP_s, staticSCP_t, s, t):
 	l = []
 	S = instance.S
 	for i in range(instance.n):
@@ -95,9 +95,9 @@ def preprocessInstance(instance, supBound):
 			c += len(instance.neighbors[i])
 		
 		modified = len(removedNodes) + len(removedEdges) > 0
-		instance = instance.restrict(removedEdges,removedEdges)
+		instance = instance.restrict(removedNodes,removedEdges)
 		
-	return instance
 		# print("Remaining nodes : " + str(instance.n))
 		# print("Remaining edges : " + str(c-d) + " (" + str(int(100*d/c)) + "% removed edges)")
 		# print("")
+	return instance

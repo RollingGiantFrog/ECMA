@@ -136,11 +136,16 @@ class Instance:
 			f.write(u"]\n")
 			
 			f.write(u"Mat = [\n")
-			for i in range(self.n - 1):
+			
+			imax = self.n-1
+			while (len(self.neighbors[imax]) == 0):
+				imax -= 1
+			
+			for i in range(imax):
 				for j in self.neighbors[i]:
 					f.write(str(i+1) + u" " + str(j+1) + u" " + str(self.d[i][j]) + u" " + str(self.D[i][j]) + u";\n")
 			
-			i = self.n-1
+			i = imax
 			for j in self.neighbors[i][:-1]:
 				f.write(str(i+1) + u" " + str(j+1) + u" " + str(self.d[i][j]) + u" " + str(self.D[i][j]) + u";\n")
 			
