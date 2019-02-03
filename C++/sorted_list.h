@@ -12,6 +12,8 @@ struct Pathway {
     Node pred;
 };
 
+// Simple class used to store best possible couples of weight and distance (i.e not dominated couple) for a node
+// Along with a predecessor node
 class SortedList {
 public:
     std::list<Pathway> ways;

@@ -24,6 +24,10 @@ struct PathEdge {
 
 bool edgeCompare(PathEdge edge1, PathEdge edge2);
 
+// Stores a path given by a list of adjacent nodes
+// Computes their distance and weight
+// Computes their worst case distance and weight by solving a knapsack problem
+// Has a list of nodes and edges, sorted by decreasing deviation
 class Path {
 public:
 	Path(const Instance& instance, vector<Node> path);

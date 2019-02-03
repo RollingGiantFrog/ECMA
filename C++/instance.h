@@ -11,9 +11,13 @@ class Instance {
 public:
     Instance() {};
 	Instance(const char filename[], int verbosity);
+
+	// Access methods
 	bool hasEdge(Node node1, Node node2) const;
 	int nodeWeight(Node node) const;
 	int edgeDist(Node node1, Node node2) const;
+
+	// Used to get the restriction of this instance with some removed nodes and edges
 	Instance restrict(std::set<Node> removedNodes, std::set<Edge> removedEdges);
 
 	int n;

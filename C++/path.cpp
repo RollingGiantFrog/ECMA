@@ -22,6 +22,7 @@ path(path)
 	weight = 0;
 	length = path.size();
 
+	// Computes the path, its weight and its distance
 	for (unsigned int i = 0; i < path.size()-1; ++i) {
 		if (!instance.hasEdge(path[i],path[i+1])) {
 			isValid = false;
@@ -44,9 +45,11 @@ path(path)
 	nodes.push_back(node);
 	weight += w;
 
+	// Sorts nodes and edges by decreasing deviation
 	std::sort(nodes.begin(),nodes.end(),nodeCompare);
 	std::sort(edges.begin(),edges.end(),edgeCompare);
 
+	// Computes deviations on each nodes and edges
 	float d1 = (float) instance.d1;
 	for (unsigned int i = 0; i < edges.size(); ++i) {
 		float D = instance.D[edges[i].node1][edges[i].node2];
@@ -74,6 +77,7 @@ path(path)
 		}
 	}
 
+	// Finally, computes worst case distance and weight
 	worstDist = dist;
 	for (unsigned int i = 0; i < edges.size(); ++i) {
 		worstDist += edges[i].dist * edges[i].dev;
