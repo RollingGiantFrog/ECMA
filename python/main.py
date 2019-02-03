@@ -15,14 +15,6 @@ from remove_nodes import *
 
 print("Loading instance...")
 
-#instance = Instance("../instances/20_USA-road-d.COL.gr")
-#instance = Instance("../instances/100_USA-road-d.BAY.gr")
-#instance = Instance("../instances/180_USA-road-d.BAY.gr")
-#instance = Instance("../instances/400_USA-road-d.BAY.gr")
-#instance = Instance("../instances/800_USA-road-d.NY.gr")
-#instance = Instance("../instances/2400_USA-road-d.COL.gr")
-#instance = Instance("../instances/2500_USA-road-d.BAY.gr")
-
 instance = Instance("../instances/1100_USA-road-d.NY.gr")
 
 print("Done.")
@@ -120,33 +112,3 @@ for k in range(len(files)):
 	print("Done. [Bound = " + str(bestBound) + ", " + str() + " nodes removed " + str(removedNodes) + " (" + str(pRemovedNodes) + "), edges removed " + str(removedEdges) + " (" + str(pRemovedEdges) + ")].")
 	print("")
 	
-	#with io.open("../results_heuristic_worst_case_dist.csv",'a') as f:
-	#	f.write(file + u";" + str(bestBound) + "\n")
-	
-	
-
-# print("Loading instance...")
-
-# instance = Instance("../instances/1000_USA-road-d.BAY.gr")
-
-# print("Done.")
-
-# print("Static SCP resolution")
-# staticSCP = ShortestCapacitedPath(instance,instance.s,instance.t,staticNodeMetric,staticEdgeMetric,False,True)
-# print("Static SCP done.")
-# print("\nSemi worst case SCP resolution")
-# semiWorstCaseSCP = ShortestCapacitedPath(instance,instance.s,instance.t,semiWorstCaseNodeMetric,worstCaseEdgeMetric,False,True)
-# print("Semi worst case SCP done.")
-
-# print("")
-
-# infBound = staticSCP.shortestPath.dist
-# print("Shortest path = " + str(staticSCP.shortestPath.dist))
-
-# print("Inf bound = " + str(infBound))
-
-# if (semiWorstCaseSCP.shortestPath != None and semiWorstCaseSCP.shortestPath.worstWeight <= instance.S):
-    # print("Feasible solution (semi worst case shortest path) = " + str(semiWorstCaseSCP.shortestPath.worstDist) + " (" + str(int(1000*(1-infBound/semiWorstCaseSCP.shortestPath.worstDist))/10.) + "%)")
-# if (semiWorstCaseSCP.lightestPath != None and semiWorstCaseSCP.lightestPath.worstWeight <= instance.S):
-    # print("Feasible solution (semi worst case lightest path) = " + str(semiWorstCaseSCP.lightestPath.worstDist) + " (" + str(int(1000*(1-infBound/semiWorstCaseSCP.lightestPath.worstDist))/10.) + "%)")
-

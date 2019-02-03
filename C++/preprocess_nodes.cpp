@@ -14,9 +14,15 @@ std::set<Node> preprocessNodes(const Instance& instance, float supBound, Node s,
     for (unsigned int i = 0; i < instance.n; ++i) {
         if (i == s || i == t) continue;
 
+        // If there is no path from s to i or from i to t, the node is useless
         if (staticSCP_s.table[i].ways.empty() || staticSCP_t.table[i].ways.empty())
             removedNodes.insert(i);
 
+        // Elimination procedure :
+        // if for any si-path, it-path,
+        // (weight from s to i) + (weight from i to t) - (weight of i) + (max weight deviation of i) > S
+        // and (distance from s to i) + (distance from i to t) > supBound
+        // Then the node i can be eliminated
         else {
             bool broken = false;
             for (std::list<Pathway>::iterator it1 = staticSCP_s.table[i].ways.begin(); it1 != staticSCP_s.table[i].ways.end(); ++it1) {
@@ -46,9 +52,15 @@ std::set<Edge> preprocessEdges(const Instance& instance, float supBound, Node s,
         for (unsigned int j = 0; j < instance.n; ++j) {
             if (!instance.adj[i][j] || i == s || j == t) continue;
 
+            // If there is no path from s to i or from j to t, the node is useless
             if (staticSCP_s.table[i].ways.empty() || staticSCP_t.table[j].ways.empty())
                 removedEdges.insert(std::make_pair(i,j));
 
+            // Elimination procedure :
+            // if for any si-path, jt-path,
+            // (weight from s to i) + (weight from j to t) + (max weight deviation of i and j) > S
+            // and (distance from s to i) + (distance from j to t) + (distance of (ij)) + (max distance deviation of (ij)) > supBound
+            // Then the edge i can be eliminated
             else {
                 bool broken = false;
                 for (std::list<Pathway>::iterator it1 = staticSCP_s.table[i].ways.begin(); it1 != staticSCP_s.table[i].ways.end(); ++it1) {
@@ -75,8 +87,10 @@ std::set<Edge> preprocessEdges(const Instance& instance, float supBound, Node s,
 }
 
 Instance preprocessInstance(Instance instance) {
+    // Computation of a superior bound
     instance.S = instance.S*2;
     ShortestCapacitedPath<SemiWorstCaseNodeMetric,SemiWorstCaseEdgeMetric> semiWorstCaseSCP(instance, instance.s, instance.t, SemiWorstCaseNodeMetric(instance), SemiWorstCaseEdgeMetric(instance), false);
+    instance.S = instance.S/2;
 
     int idx = semiWorstCaseSCP.table[instance.t].size()-1;
     while (idx >= 0 && semiWorstCaseSCP.extractPathNodes(instance.s,instance.t,idx).worstWeight > instance.S)
@@ -86,6 +100,7 @@ Instance preprocessInstance(Instance instance) {
     Path shortestPath = semiWorstCaseSCP.extractPathNodes(instance.s,instance.t,idx);
     float supBound = shortestPath.worstDist;
 
+    // Preprocessing loop
     bool modified = true;
     while (modified) {
         ShortestCapacitedPath<StaticNodeMetric,StaticEdgeMetric> staticSCP_s(instance, instance.s, instance.t, StaticNodeMetric(instance), StaticEdgeMetric(instance), false);
