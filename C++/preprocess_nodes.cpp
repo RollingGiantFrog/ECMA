@@ -77,8 +77,17 @@ std::set<Edge> preprocessEdges(const Instance& instance, float supBound, Node s,
 Instance preprocessInstance(Instance instance) {
     bool modified = true;
 
+    instance.S = instance.S*2;
     ShortestCapacitedPath<SemiWorstCaseNodeMetric,SemiWorstCaseEdgeMetric> semiWorstCaseSCP(instance, instance.s, instance.t, SemiWorstCaseNodeMetric(instance), SemiWorstCaseEdgeMetric(instance), false);
-    Path shortestPath = semiWorstCaseSCP.extractPathNodes(instance.s,instance.t,semiWorstCaseSCP.table[instance.t].size()-1);
+
+    int idx = semiWorstCaseSCP.table[instance.t].size()-1;
+    while (idx >= 0 && semiWorstCaseSCP.extractPathNodes(instance.s,instance.t,idx).worstWeight > instance.S) {
+        idx -= 1;
+    }
+    if (idx < 0)
+        idx = 0;
+    Path shortestPath = semiWorstCaseSCP.extractPathNodes(instance.s,instance.t,idx);
+    //Path shortestPath = semiWorstCaseSCP.extractPathNodes(instance.s,instance.t,semiWorstCaseSCP.table[instance.t].size()-1);
     float supBound = shortestPath.worstDist;
 
     while (modified) {

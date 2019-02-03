@@ -28,17 +28,15 @@ public:
 class SemiWorstCaseNodeMetric {
 public:
     const Instance& instance;
-    float penalty;
-    SemiWorstCaseNodeMetric(const Instance& instance, float penalty) : instance(instance), penalty(penalty) {};
-    int operator() (Node u) const { return instance.p[u] + penalty*instance.ph[u]; };
+    SemiWorstCaseNodeMetric(const Instance& instance) : instance(instance) {};
+    int operator() (Node u) const { return instance.p[u] + instance.ph[u]; };
 };
 
 class SemiWorstCaseEdgeMetric {
 public:
     const Instance& instance;
-    float penalty;
-    SemiWorstCaseEdgeMetric(const Instance& instance, float penalty) : instance(instance), penalty(penalty) {};
-    double operator() (Node u, Node v) const { return instance.d[u][v]*(1. + penalty*instance.D[u][v]); };
+    SemiWorstCaseEdgeMetric(const Instance& instance) : instance(instance) {};
+    double operator() (Node u, Node v) const { return instance.d[u][v]*(1. + instance.D[u][v]); };
 };
 
 template<typename NodeMetric, typename EdgeMetric>
@@ -146,7 +144,6 @@ public:
         while (u != s) {
             nodes.push_back(u);
             ways = table[u].getList();
-        std::cout << ways.size() << std::endl;
             for (unsigned int i = 0; i < ways.size(); ++i) {
                 Pathway way = ways[i];
                 if (way.weight == weight) {
